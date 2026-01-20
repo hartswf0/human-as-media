@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emancipation Engine | Potent Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            /* Slate 950 */
+            color: #e2e8f0;
+            height: 100vh;
+            overflow: hidden;
+            /* Lock to single screen */
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            /* Sky 500 */
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #1e293b;
+            border-radius: 2px;
+        }
+
+        /* Panels */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid #1e293b;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Scrollbars */
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 2px;
+        }
+
+        /* Animations */
+        @keyframes scanline {
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(14, 165, 233, 0.02) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col">
+
+    <!-- 1. Header (Fixed Height) -->
+    <header class="h-14 border-b border-slate-800 bg-slate-900/80 flex items-center justify-between px-6 shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 bg-sky-500 animate-pulse rounded-sm shadow-[0_0_10px_#0ea5e9]"></div>
+            <h1 class="text-lg font-bold tracking-widest text-white uppercase">
+                Emancipation <span class="text-sky-500">Engine</span>
+            </h1>
+            <span
+                class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700 font-mono">LIVE_PROTOTYPE</span>
+        </div>
+
+        <div class="flex gap-6 text-xs mono">
+            <div class="flex flex-col items-end leading-none">
+                <span class="text-slate-500">SYSTEM STATUS</span>
+                <span class="text-emerald-400 font-bold">OPTIMAL</span>
+            </div>
+            <div class="h-6 w-px bg-slate-700"></div>
+            <div class="flex flex-col items-end leading-none">
+                <span class="text-slate-500">ACTIVE NODES</span>
+                <span class="text-white font-bold" id="stat-nodes">--</span>
+            </div>
+            <div class="flex flex-col items-end leading-none">
+                <span class="text-slate-500">MESSAGE FLUX</span>
+                <span class="text-sky-400 font-bold" id="stat-msgs">--</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. Main Dashboard (Fills Remaining Height) -->
+    <main class="flex-grow flex overflow-hidden">
+
+        <!-- LEFT: Controls (20%) -->
+        <aside
+            class="w-72 border-r border-slate-800 bg-slate-950/50 flex flex-col shrink-0 overflow-y-auto custom-scroll p-4 gap-4 z-10">
+
+            <!-- Perspective Controls -->
+            <div class="glass-panel p-4 rounded-lg">
+                <h2 class="text-xs font-bold text-sky-400 uppercase mb-4 tracking-wider border-b border-slate-800 pb-2">
+                    Perspective Lens</h2>
+
+                <div class="mb-5">
+                    <label class="flex justify-between text-[11px] font-bold text-slate-300 mb-2">
+                        <span>SIMULATION SPEED</span>
+                        <span id="val-time" class="text-sky-400 mono">1.0x</span>
+                    </label>
+                    <input type="range" id="timeSlider" min="1" max="50" value="10">
+                </div>
+
+                <div>
+                    <label class="flex justify-between text-[11px] font-bold text-slate-300 mb-2">
+                        <span>FILTER BUBBLE SIZE</span>
+                        <span id="val-scope" class="text-sky-400 mono">250px</span>
+                    </label>
+                    <input type="range" id="scopeSlider" min="100" max="800" value="250">
+                    <p class="text-[10px] text-slate-500 mt-1">Area of visible influence.</p>
+                </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="glass-panel p-4 rounded-lg">
+                <h2
+                    class="text-xs font-bold text-purple-400 uppercase mb-4 tracking-wider border-b border-slate-800 pb-2">
+                    Viral Logic</h2>
+
+                <div class="mb-5">
+                    <label class="flex justify-between text-[11px] font-bold text-slate-300 mb-2">
+                        <span>ECHO CHAMBER</span>
+                        <span id="val-echo" class="text-purple-400 mono">High</span>
+                    </label>
+                    <input type="range" id="echoSlider" min="0" max="100" value="70">
+                    <p class="text-[10px] text-slate-500 mt-1">High: Rejects opposing views.</p>
+                </div>
+
+                <div>
+                    <label class="flex justify-between text-[11px] font-bold text-slate-300 mb-2">
+                        <span>NOVELTY BIAS</span>
+                        <span id="val-novelty" class="text-purple-400 mono">Low</span>
+                    </label>
+                    <input type="range" id="noveltySlider" min="0" max="100" value="20">
+                    <p class="text-[10px] text-slate-500 mt-1">High: Amplifies extreme ideas.</p>
+                </div>
+            </div>
+
+            <!-- Toggles -->
+            <div class="glass-panel p-4 rounded-lg">
+                <button id="toggleGhosts"
+                    class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-[10px] font-bold uppercase rounded border border-slate-600 transition-colors text-slate-300">
+                    Show Hidden Content: OFF
+                </button>
+            </div>
+
+            <div class="mt-auto text-[10px] text-slate-600 font-mono text-center">
+                Human_as_Media_v3.0
+            </div>
+        </aside>
+
+
+        <!-- CENTER: The Simulation (Flex Grow) -->
+        <section class="flex-grow relative bg-black flex flex-col overflow-hidden">
+            <!-- Canvas Container -->
+            <div class="absolute inset-0 z-0">
+                <div class="scan-overlay"></div>
+                <canvas id="worldCanvas" class="block w-full h-full cursor-crosshair"></canvas>
+            </div>
+
+            <!-- Overlay UI: Legend -->
+            <div class="absolute bottom-6 left-6 z-10 pointer-events-none">
+                <div class="glass-panel p-3 rounded border border-slate-700/50 shadow-2xl">
+                    <div class="flex items-center gap-3 mb-1">
+                        <span class="w-3 h-3 rounded-full bg-sky-500 shadow-[0_0_8px_#0ea5e9]"></span>
+                        <span class="text-[10px] font-bold text-slate-200">YOU</span>
+                    </div>
+                    <div class="flex items-center gap-3 mb-1">
+                        <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+                        <span class="text-[10px] text-slate-400">Network Node</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-px bg-emerald-500"></span>
+                        <span class="text-[10px] text-emerald-400">Successful Transfer</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Title -->
+            <div class="absolute top-6 left-6 z-10 pointer-events-none">
+                <h2
+                    class="text-sm font-bold text-white bg-slate-900/80 px-3 py-1 rounded border border-slate-700 backdrop-blur shadow-xl flex items-center gap-2">
+                    <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                    LIVE FEED
+                </h2>
+            </div>
+        </section>
+
+
+        <!-- RIGHT: Trace & Logs (25%) -->
+        <aside class="w-80 border-l border-slate-800 bg-slate-950/50 flex flex-col shrink-0 z-10 h-full">
+
+            <!-- Action Area -->
+            <div class="p-4 border-b border-slate-800">
+                <button id="inject-btn"
+                    class="w-full py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs uppercase tracking-widest rounded shadow-[0_4px_14px_0_rgba(14,165,233,0.39)] active:scale-95 transition-all flex items-center justify-center gap-2 group">
+                    <span>Inject New Idea</span>
+                    <svg class="w-4 h-4 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Trace Visualization -->
+            <div class="h-1/3 border-b border-slate-800 flex flex-col bg-slate-900/30">
+                <div class="p-3 bg-slate-900/50 border-b border-slate-800 flex justify-between items-center">
+                    <span class="text-[10px] font-bold text-pink-400 uppercase tracking-wider">Mutation Trace</span>
+                </div>
+                <div class="flex-grow relative overflow-hidden">
+                    <canvas id="traceCanvas" class="w-full h-full block"></canvas>
+                </div>
+            </div>
+
+            <!-- Text Log -->
+            <div class="flex-grow flex flex-col overflow-hidden">
+                <div class="p-3 bg-slate-900/50 border-b border-slate-800 flex justify-between items-center shrink-0">
+                    <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Feed Selection
+                        Log</span>
+                </div>
+                <div id="selection-log"
+                    class="flex-grow overflow-y-auto custom-scroll p-3 space-y-3 font-mono text-[10px]">
+                    <!-- Logs go here -->
+                    <div class="text-slate-600 text-center italic mt-10">System Initializing...</div>
+                </div>
+            </div>
+
+        </aside>
+
+    </main>
+
+    <script>
+        // --- CORE ENGINE ---
+        const $ = (id) => document.getElementById(id);
+        const rand = (min, max) => Math.random() * (max - min) + min;
+
+        // Configuration
+        const CONFIG = {
+            nodeCount: 70,
+            bubbleRadius: 250,
+            echoStrength: 0.7, // Strict by default
+            noveltyBias: 0.2,
+            showGhosts: false,
+            timeScale: 1.0,
+            width: 0,
+            height: 0
+        };
+
+        // Data Structures
+        class Node {
+            constructor(x, y, isUser) {
+                this.x = x;
+                this.y = y;
+                this.isUser = isUser;
+                this.vx = rand(-0.5, 0.5);
+                this.vy = rand(-0.5, 0.5);
+                this.bias = isUser ? 0.5 : rand(0, 1); // 0.0 to 1.0 Spectrum
+                this.visible = false;
+                this.cooldown = 0;
+                this.radius = isUser ? 8 : rand(2, 4);
+            }
+            update() {
+                this.x += this.vx * CONFIG.timeScale;
+                this.y += this.vy * CONFIG.timeScale;
+                // Bounce
+                if (this.x < 0 || this.x > CONFIG.width) this.vx *= -1;
+                if (this.y < 0 || this.y > CONFIG.height) this.vy *= -1;
+                if (this.cooldown > 0) this.cooldown -= CONFIG.timeScale;
+            }
+        }
+
+        class Message {
+            constructor(x, y, topic, text) {
+                this.x = x;
+                this.y = y;
+                this.topic = topic;
+                this.text = text;
+                this.age = 0;
+                this.id = Math.random().toString(36).substr(2, 5);
+                this.generation = 0;
+            }
+        }
+
+        class Engine {
+            constructor() {
+                this.nodes = [];
+                this.messages = [];
+                this.links = []; // Visual lines
+                this.trace = []; // History
+                this.rejections = []; // Visual feedback for filtering
+
+                this.canvas = $('worldCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.traceCanvas = $('traceCanvas');
+                this.traceCtx = this.traceCanvas.getContext('2d');
+
+                this.init();
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.loop();
+            }
+
+            init() {
+                // User at center (will update on resize)
+                this.userNode = new Node(0, 0, true);
+                this.nodes.push(this.userNode);
+
+                for (let i = 0; i < CONFIG.nodeCount; i++) {
+                    this.nodes.push(new Node(0, 0, false));
+                }
+            }
+
+            resize() {
+                // Main Canvas
+                const parent = this.canvas.parentElement;
+                this.canvas.width = parent.offsetWidth;
+                this.canvas.height = parent.offsetHeight;
+                CONFIG.width = this.canvas.width;
+                CONFIG.height = this.canvas.height;
+
+                // Trace Canvas
+                const traceParent = this.traceCanvas.parentElement;
+                this.traceCanvas.width = traceParent.offsetWidth;
+                this.traceCanvas.height = traceParent.offsetHeight;
+
+                // Reset positions if first run
+                if (this.userNode.x === 0) {
+                    this.userNode.x = CONFIG.width / 2;
+                    this.userNode.y = CONFIG.height / 2;
+                    this.nodes.forEach(n => {
+                        if (!n.isUser) {
+                            n.x = rand(0, CONFIG.width);
+                            n.y = rand(0, CONFIG.height);
+                        }
+                    });
+                }
+            }
+
+            // --- LOGIC ---
+            inject(text = null) {
+                const topics = ["AI", "Truth", "Money", "Future", "Fear", "Hope", "Data"];
+                const t = text || topics[Math.floor(Math.random() * topics.length)];
+
+                // Spawn near user for action
+                const spread = 200;
+                const msg = new Message(
+                    this.userNode.x + rand(-spread, spread),
+                    this.userNode.y + rand(-spread, spread),
+                    this.userNode.bias + rand(-0.2, 0.2), // Close to user topic
+                    t
+                );
+                this.messages.push(msg);
+
+                // Add initial trace
+                this.trace.unshift({ txt: t, gen: 0, bias: msg.topic, time: Date.now() });
+                if (this.trace.length > 8) this.trace.pop();
+            }
+
+            updateLogic() {
+                // 1. Visibility (The Bubble)
+                const bubSq = CONFIG.bubbleRadius ** 2;
+                this.nodes.forEach(n => {
+                    if (n.isUser) { n.visible = true; return; }
+                    const d = (n.x - this.userNode.x) ** 2 + (n.y - this.userNode.y) ** 2;
+                    // Formula: You see nodes that are (Close AND Agreeable) OR (Very Close)
+                    const biasDiff = Math.abs(n.bias - this.userNode.bias);
+                    const agreeThreshold = 1.0 - (CONFIG.echoStrength * 0.8);
+
+                    n.visible = (d < bubSq && biasDiff < agreeThreshold) || d < bubSq * 0.2;
+                });
+
+                // 2. Messages & transmission
+                const nextMsgs = [];
+                this.messages.forEach(m => {
+                    m.age += CONFIG.timeScale;
+                    m.x += rand(-1, 1) * CONFIG.timeScale;
+                    m.y += rand(-1, 1) * CONFIG.timeScale;
+
+                    this.nodes.forEach(n => {
+                        if (n.cooldown > 0) return;
+                        const dx = m.x - n.x;
+                        const dy = m.y - n.y;
+                        if (dx * dx + dy * dy < 900) { // 30px radius squared
+                            // HIT!
+                            const biasDiff = Math.abs(m.topic - n.bias);
+
+                            // FILTER CHECK
+                            // High echo strength = reject different ideas
+                            // High novelty bias = accept VERY different ideas
+
+                            let accepted = false;
+
+                            if (biasDiff < 0.2) accepted = true; // Agree
+                            else if (biasDiff > 0.8 && Math.random() < CONFIG.noveltyBias) accepted = true; // Shock value
+                            else if (Math.random() < 0.1) accepted = true; // Random chance
+
+                            if (accepted) {
+                                // SHARE / MUTATE
+                                let newTxt = m.text;
+                                if (Math.random() < 0.3) newTxt += n.bias > 0.5 ? "!" : "?";
+
+                                const clone = new Message(n.x, n.y, m.topic * 0.9 + n.bias * 0.1, newTxt);
+                                clone.generation = m.generation + 1;
+                                nextMsgs.push(clone);
+
+                                n.cooldown = 40;
+
+                                // Visual Link
+                                this.links.push({
+                                    x1: m.x, y1: m.y, x2: n.x, y2: n.y,
+                                    life: 20, color: n.isUser ? '#0ea5e9' : '#10b981'
+                                });
+
+                                // Log
+                                if (n.isUser) this.log(m.text, "DIRECT FEED", true);
+                                else if (n.visible && Math.random() < 0.2) {
+                                    this.trace.unshift({ txt: newTxt, gen: clone.generation, bias: clone.topic });
+                                    if (this.trace.length > 8) this.trace.pop();
+                                }
+
+                            } else {
+                                // REJECTED (Visual Feedback)
+                                if (n.visible && Math.random() < 0.3) {
+                                    this.rejections.push({ x: n.x, y: n.y, life: 15 });
+                                }
+                            }
+                        }
+                    });
+
+                    if (m.age < 300) nextMsgs.push(m);
+                });
+                this.messages = nextMsgs.slice(0, 50); // Cap population
+            }
+
+            log(txt, type, highlight) {
+                const el = $('selection-log');
+                if (el.innerHTML.includes("Initializing")) el.innerHTML = "";
+
+                const div = document.createElement('div');
+                div.className = `border-l-2 pl-2 ${highlight ? 'border-sky-500 bg-sky-900/20' : 'border-slate-600'}`;
+                div.innerHTML = `
+                    <div class="flex justify-between">
+                        <span class="text-white font-bold">"${txt}"</span>
+                        <span class="text-[9px] text-slate-400">${type}</span>
+                    </div>
+                `;
+                el.prepend(div);
+                if (el.children.length > 20) el.lastChild.remove();
+            }
+
+            draw() {
+                const ctx = this.ctx;
+                const w = CONFIG.width;
+                const h = CONFIG.height;
+
+                // Clear with trail effect? No, clean wipe for clarity
+                ctx.clearRect(0, 0, w, h);
+
+                // 1. Draw Bubble Scope
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(this.userNode.x, this.userNode.y, CONFIG.bubbleRadius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(14, 165, 233, 0.03)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(14, 165, 233, 0.2)';
+                ctx.setLineDash([5, 10]);
+                ctx.stroke();
+                ctx.restore();
+
+                // 2. Draw Links
+                this.links.forEach(l => {
+                    ctx.beginPath();
+                    ctx.moveTo(l.x1, l.y1);
+                    ctx.lineTo(l.x2, l.y2);
+                    ctx.strokeStyle = l.color;
+                    ctx.globalAlpha = l.life / 20;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    l.life -= CONFIG.timeScale;
+                });
+                this.links = this.links.filter(l => l.life > 0);
+                ctx.globalAlpha = 1;
+
+                // 3. Draw Rejections (Red X or Pulse)
+                this.rejections.forEach(r => {
+                    ctx.beginPath();
+                    ctx.arc(r.x, r.y, 10 + (15 - r.life), 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(239, 68, 68, ${r.life / 15})`;
+                    ctx.stroke();
+                    r.life -= CONFIG.timeScale;
+                });
+                this.rejections = this.rejections.filter(r => r.life > 0);
+
+                // 4. Draw Nodes
+                this.nodes.forEach(n => {
+                    if (!n.visible && !CONFIG.showGhosts) return;
+
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+
+                    if (n.isUser) {
+                        // User Glow
+                        ctx.fillStyle = '#0ea5e9';
+                        ctx.shadowColor = '#0ea5e9';
+                        ctx.shadowBlur = 20;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+
+                        // Radar Ping
+                        const ping = (Date.now() % 2000) / 2000 * 50;
+                        ctx.beginPath();
+                        ctx.arc(n.x, n.y, n.radius + ping, 0, Math.PI * 2);
+                        ctx.strokeStyle = `rgba(14, 165, 233, ${1 - ping / 50})`;
+                        ctx.stroke();
+
+                    } else if (n.visible) {
+                        // Color by Bias
+                        const r = Math.floor(n.bias * 255);
+                        const b = Math.floor((1 - n.bias) * 255);
+                        ctx.fillStyle = `rgb(${r}, 100, ${b})`;
+                        ctx.fill();
+
+                        // Outline
+                        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    } else {
+                        // Ghost
+                        ctx.fillStyle = '#1e293b';
+                        ctx.fill();
+                    }
+                });
+
+                // 5. Draw Messages
+                this.messages.forEach(m => {
+                    const distToUser = Math.hypot(m.x - this.userNode.x, m.y - this.userNode.y);
+                    if (distToUser > CONFIG.bubbleRadius && !CONFIG.showGhosts) return;
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(m.x, m.y, 2, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Text Label (only if visible)
+                    if (distToUser < CONFIG.bubbleRadius) {
+                        ctx.font = '10px Inter';
+                        const w = ctx.measureText(m.text).width + 8;
+                        ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+                        ctx.fillRect(m.x - w / 2, m.y - 18, w, 12);
+                        ctx.fillStyle = '#cbd5e1';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(m.text, m.x, m.y - 9);
+                    }
+                });
+
+                // Update Stats
+                $('stat-nodes').innerText = this.nodes.filter(n => n.visible).length;
+                $('stat-msgs').innerText = this.messages.length;
+            }
+
+            drawTrace() {
+                const ctx = this.traceCtx;
+                const w = this.traceCanvas.width;
+                const h = this.traceCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+
+                let y = 20;
+                this.trace.forEach((t, i) => {
+                    const r = Math.floor(t.bias * 255);
+                    const b = Math.floor((1 - t.bias) * 255);
+
+                    ctx.fillStyle = `rgb(${r}, 100, ${b})`;
+                    ctx.fillRect(10, y - 8, 3, 10);
+
+                    ctx.fillStyle = i === 0 ? '#fff' : '#64748b';
+                    ctx.font = i === 0 ? 'bold 11px monospace' : '10px monospace';
+                    ctx.textAlign = 'left';
+                    const indent = Math.min(t.gen * 5, 20);
+                    const prefix = t.gen > 0 ? "↳ " : "";
+
+                    ctx.fillText(prefix + t.txt, 20 + indent, y);
+
+                    if (i < this.trace.length - 1) {
+                        ctx.strokeStyle = '#334155';
+                        ctx.beginPath();
+                        ctx.moveTo(11, y + 2);
+                        ctx.lineTo(11, y + 18);
+                        ctx.stroke();
+                    }
+                    y += 20;
+                });
+            }
+
+            loop() {
+                this.updateLogic();
+                this.draw();
+                this.drawTrace();
+                requestAnimationFrame(() => this.loop());
+            }
+        }
+
+        // --- INIT & EVENTS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const engine = new Engine();
+
+            // Sliders
+            $('timeSlider').addEventListener('input', e => {
+                CONFIG.timeScale = e.target.value / 10;
+                $('val-time').innerText = CONFIG.timeScale + 'x';
+            });
+            $('scopeSlider').addEventListener('input', e => {
+                CONFIG.bubbleRadius = parseInt(e.target.value);
+                $('val-scope').innerText = e.target.value + 'px';
+            });
+            $('echoSlider').addEventListener('input', e => {
+                const v = parseInt(e.target.value);
+                CONFIG.echoStrength = v / 100;
+                $('val-echo').innerText = v > 70 ? 'Strict' : (v < 30 ? 'Open' : 'Med');
+            });
+            $('noveltySlider').addEventListener('input', e => {
+                const v = parseInt(e.target.value);
+                CONFIG.noveltyBias = v / 100;
+                $('val-novelty').innerText = v > 70 ? 'High' : 'Low';
+            });
+
+            // Toggle
+            $('toggleGhosts').addEventListener('click', e => {
+                CONFIG.showGhosts = !CONFIG.showGhosts;
+                e.target.innerText = `Show Hidden Content: ${CONFIG.showGhosts ? 'ON' : 'OFF'}`;
+                e.target.classList.toggle('text-sky-400');
+            });
+
+            // Inject Button
+            $('inject-btn').addEventListener('click', () => engine.inject());
+
+            // Auto-Pilot
+            setInterval(() => {
+                if (engine.messages.length < 15 && Math.random() < 0.3) {
+                    engine.inject();
+                }
+            }, 1000);
+
+            // Start with a burst
+            setTimeout(() => {
+                engine.inject("Welcome");
+                engine.inject("Data");
+                engine.inject("Network");
+            }, 500);
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,227 +1,843 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>HUMAN — Intro as Medium & Human as Media Presentation</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUMAN — Intro as Medium & Human as Media Presentation</title>
 
-<!-- Combined Styles: Interactive Prototype Styles First, then Presentation Styles -->
-<style>
-  /* --- Interactive Prototype Styles --- */
-  :root{
-    --bg:#0b0c10;--ink:#e8e8e8;--muted:#a9a9a9;--hi:#ffd166;--accent:#7ad7ff;--ok:#95f29b;--warn:#ff7a7a;
-    --card:#0f1520;--rule:#243044;--line:#202636;--chip:#0c101a;--shadow:0 10px 28px rgba(0,0,0,.35);
-  }
-  *{box-sizing:border-box}
-  /* body height is managed by the presentation now, not just the app */
-  /* html,body{height:100%} */
-  .app-container-inner{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-  .app-container-inner h1, .app-container-inner h2, .app-container-inner h3{margin:.2rem 0 0.6rem}
-  .app-container-inner h1{font-size:1.3rem;font-weight:700}
-  .app-container-inner h2{font-size:1.05rem;color:var(--muted)}
-  .app-container-inner .app{display:grid;grid-template-rows:auto auto 1fr auto;min-height:100vh}
-  .app-container-inner header{position:sticky;top:0;background:var(--chip);backdrop-filter:saturate(1.1) blur(6px);z-index:5;border-bottom:1px solid var(--line)}
-  .app-container-inner .head{display:flex;gap:12px;align-items:center;padding:12px 12px}
-  .app-container-inner .badge{background:var(--chip);border:1px solid var(--rule);padding:6px 10px;border-radius:999px;font-weight:600;box-shadow:var(--shadow)}
-  .app-container-inner .tabs{display:flex;overflow:auto;gap:8px;padding:8px 8px;border-bottom:1px solid var(--line)}
-  .app-container-inner .tabs button{white-space:nowrap;border:none;background:var(--chip);color:var(--ink);padding:8px 12px;border-radius:999px;border:1px solid var(--rule);cursor:pointer}
-  .app-container-inner .tabs button.active{background:var(--accent);color:#00131c;border-color:transparent}
-  .app-container-inner main{display:grid;grid-template-columns:1fr;gap:12px;padding:12px}
-  @media(min-width:980px){.app-container-inner main{grid-template-columns: 1.3fr .7fr}}
-  .app-container-inner .panel{background:var(--card);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow);padding:12px;min-height:180px}
-  .app-container-inner .kicker{color:var(--muted);font-size:.9rem}
-  .app-container-inner .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .app-container-inner .control{display:flex;gap:6px;align-items:center;background:var(--chip);border:1px solid var(--rule);padding:6px 8px;border-radius:12px}
-  .app-container-inner .control label{font-size:.85rem;color:var(--muted)}
-  .app-container-inner input[type=range]{accent-color:var(--accent)}
-  .app-container-inner .rows{display:grid;gap:12px}
-  .app-container-inner .grid2{display:grid;grid-template-columns:1fr;gap:12px}
-  @media(min-width:980px){.app-container-inner .grid2{grid-template-columns:1fr 1fr}}
-  .app-container-inner canvas, .app-container-inner svg{width:100%;height:260px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
-  .app-container-inner .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-  .app-container-inner .dot{display:inline-flex;align-items:center;gap:6px}
-  .app-container-inner .dot i{display:inline-block;width:10px;height:10px;border-radius:999px}
-  .app-container-inner .pill{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;background:var(--chip);border:1px solid var(--rule);border-radius:999px;color:var(--muted)}
-  .app-container-inner .split{display:grid;grid-template-columns:1fr;gap:10px}
-  @media(min-width:1100px){.app-container-inner .split{grid-template-columns:1fr 1fr}}
-  .app-container-inner .textzone{background:var(--card);border:1px solid var(--line);padding:10px;border-radius:12px;max-height:340px;overflow:auto}
-  .app-container-inner mark{padding:0 2px;border-radius:4px}
-  .app-container-inner mark.tech{background:rgba(100,225,255,.2);outline:1px solid rgba(100,225,255,.35)}
-  .app-container-inner mark.hum{background:rgba(255,209,102,.2);outline:1px solid rgba(255,209,102,.35)}
-  .app-container-inner .gauges{display:grid;grid-template-columns:1fr;gap:10px}
-  .app-container-inner .gauge{background:linear-gradient(90deg,var(--chip),var(--card));border:1px solid var(--line);border-radius:10px;overflow:hidden;position:relative}
-  .app-container-inner .gauge .bar{position:absolute;top:0;left:0;bottom:0;background:linear-gradient(90deg,var(--accent),#74ffa3)}
-  .app-container-inner .gauge .label{position:relative;padding:6px 8px;color:var(--muted)}
-  .app-container-inner .status{font-weight:700;color:var(--ink)}
-  .app-container-inner .chiprow{display:flex;flex-wrap:wrap;gap:8px}
-  .app-container-inner .node{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--rule);border-radius:999px;background:var(--chip);cursor:pointer}
-  .app-container-inner .node.active{background:var(--accent);color:#01202a;border-color:transparent}
-  .app-container-inner .footer{padding:10px;color:var(--muted);border-top:1px solid var(--line)}
-  .app-container-inner .btn{border:1px solid var(--rule);background:var(--chip);color:var(--ink);padding:8px 10px;border-radius:10px;cursor:pointer}
-  .app-container-inner .btn.primary{background:var(--accent);color:#00131c;border-color:transparent}
-  .app-container-inner .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .app-container-inner .small{font-size:.85rem;color:var(--muted)}
-  .app-container-inner .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
+  <!-- Combined Styles: Interactive Prototype Styles First, then Presentation Styles -->
+  <style>
+    /* --- Interactive Prototype Styles --- */
+    :root {
+      --bg: #0b0c10;
+      --ink: #e8e8e8;
+      --muted: #a9a9a9;
+      --hi: #ffd166;
+      --accent: #7ad7ff;
+      --ok: #95f29b;
+      --warn: #ff7a7a;
+      --card: #0f1520;
+      --rule: #243044;
+      --line: #202636;
+      --chip: #0c101a;
+      --shadow: 0 10px 28px rgba(0, 0, 0, .35);
+    }
 
-  /* --- Presentation Styles (with adjusted :root defaults for better integration) --- */
-  body{margin:0;font:16px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-  header, footer{padding:12px 16px;background:var(--chip);color:var(--muted);position:sticky;top:0;z-index:10;border-bottom:1px solid var(--line)}
-  header{top:0}
-  footer{bottom:0;border-top:1px solid var(--line)}
-  h1{margin:0;font-weight:700;font-size:22px;color:var(--hi)}
-  .controls{display:flex;gap:8px;flex-wrap:wrap}
-  button{background:var(--chip);border:1px solid var(--rule);color:var(--ink);padding:7px 10px;border-radius:10px;cursor:pointer}
-  button:hover{border-color:var(--accent)}
+    * {
+      box-sizing: border-box
+    }
 
-  .slide{display:none;min-height:calc(100vh - 96px);padding:18px;align-items:center;justify-content:center}
-  .slide.active{display:flex}
+    /* body height is managed by the presentation now, not just the app */
+    /* html,body{height:100%} */
+    .app-container-inner {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.45 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif
+    }
 
-  /* 16:9 stage for slide clarity */
-  .stage{width:100%;max-width:1400px;aspect-ratio:16/9;display:flex;align-items:stretch;justify-content:center}
+    .app-container-inner h1,
+    .app-container-inner h2,
+    .app-container-inner h3 {
+      margin: .2rem 0 0.6rem
+    }
 
-  .content{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:var(--shadow);width:100%;display:flex;flex-direction:column}
-  .content h2{margin:0 0 12px;color:var(--hi);font-size:28px;line-height:1.2}
-  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:12px}
-  .card{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:14px;box-shadow:var(--shadow); display:flex; flex-direction:column;}
-  .card h3{margin:2px 0 10px;color:var(--accent);font-size:18px}
-  .card p, .card ul.list, .card ol.list {flex-grow: 1;} /* Allow content to grow */
-  .rule{height:1px;background:linear-gradient(90deg,transparent, var(--rule) 20%, var(--rule) 80%, transparent);margin:10px 0}
-  label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
-  input,textarea,select{background:var(--chip);border:1px solid var(--rule);color:var(--ink);border-radius:10px;padding:8px;width:100%}
-  .list{display:grid;gap:8px;list-style-type: disc; margin-left: 20px; padding-left: 0;}
-  .list li {margin-bottom: 4px;}
-  .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:var(--chip);border:1px solid var(--rule);font-size:12px;color:var(--muted)}
-  .quote{font-style:italic;color:#cbd5ff}
-  .callout{background:var(--chip);border:1px solid var(--rule);padding:10px;border-radius:10px}
+    .app-container-inner h1 {
+      font-size: 1.3rem;
+      font-weight: 700
+    }
 
-  .gridview{display:none;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:18px}
-  .preview{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
-  .preview h3{margin:0 0 6px;color:var(--hi)}
+    .app-container-inner h2 {
+      font-size: 1.05rem;
+      color: var(--muted)
+    }
 
-  footer{border-top:1px solid var(--line);text-align:center}
-  .se,.e,.s{display:none} /* These resizers are not functional in combined presentation */
-  @media (max-width:900px){.grid{grid-template-columns:repeat(6,1fr)}}
+    .app-container-inner .app {
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      min-height: 100vh
+    }
 
-  /* Newspaper theme tweaks for the whole document */
-  body[data-theme="news"]{font-family: Georgia, "Times New Roman", serif}
-  body[data-theme="news"] h1, body[data-theme="news"] .content h2{letter-spacing:0.2px}
+    .app-container-inner header {
+      position: sticky;
+      top: 0;
+      background: var(--chip);
+      backdrop-filter: saturate(1.1) blur(6px);
+      z-index: 5;
+      border-bottom: 1px solid var(--line)
+    }
 
-  /* Specific styling for the embedded interactive app to fit the slide */
-  #slide13 .content {
-    padding: 0; /* Remove padding from the slide content to allow the app to fill it */
-  }
-  #interactive-app-wrapper {
-    width: 100%;
-    height: 100%; /* Fill the entire content area of the slide */
-    overflow: hidden; /* Hide any overflow from the app */
-    border-radius: 14px; /* Match the slide's border-radius */
-    display: flex; /* Ensure the app container respects flex layout */
-  }
-  #interactive-app-wrapper .app {
-    width: 100%;
-    height: 100%;
-    min-height: auto; /* Override min-height:100vh for nested context */
-  }
-  #interactive-app-wrapper .app header, #interactive-app-wrapper .app .footer {
-    position: relative; /* Make these relative inside the scrollable app */
-    top: auto;
-    bottom: auto;
-  }
-  #interactive-app-wrapper .app main {
-      flex-grow: 1; /* Allow main to fill available space */
-      overflow-y: auto; /* Make main scrollable if content exceeds height */
-  }
-</style>
+    .app-container-inner .head {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 12px
+    }
+
+    .app-container-inner .badge {
+      background: var(--chip);
+      border: 1px solid var(--rule);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      box-shadow: var(--shadow)
+    }
+
+    .app-container-inner .tabs {
+      display: flex;
+      overflow: auto;
+      gap: 8px;
+      padding: 8px 8px;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .app-container-inner .tabs button {
+      white-space: nowrap;
+      border: none;
+      background: var(--chip);
+      color: var(--ink);
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--rule);
+      cursor: pointer
+    }
+
+    .app-container-inner .tabs button.active {
+      background: var(--accent);
+      color: #00131c;
+      border-color: transparent
+    }
+
+    .app-container-inner main {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 12px
+    }
+
+    @media(min-width:980px) {
+      .app-container-inner main {
+        grid-template-columns: 1.3fr .7fr
+      }
+    }
+
+    .app-container-inner .panel {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      min-height: 180px
+    }
+
+    .app-container-inner .kicker {
+      color: var(--muted);
+      font-size: .9rem
+    }
+
+    .app-container-inner .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center
+    }
+
+    .app-container-inner .control {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      background: var(--chip);
+      border: 1px solid var(--rule);
+      padding: 6px 8px;
+      border-radius: 12px
+    }
+
+    .app-container-inner .control label {
+      font-size: .85rem;
+      color: var(--muted)
+    }
+
+    .app-container-inner input[type=range] {
+      accent-color: var(--accent)
+    }
+
+    .app-container-inner .rows {
+      display: grid;
+      gap: 12px
+    }
+
+    .app-container-inner .grid2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px
+    }
+
+    @media(min-width:980px) {
+      .app-container-inner .grid2 {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    .app-container-inner canvas,
+    .app-container-inner svg {
+      width: 100%;
+      height: 260px;
+      border-radius: 12px;
+      background: var(--card);
+      border: 1px solid var(--line)
+    }
+
+    .app-container-inner .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px
+    }
+
+    .app-container-inner .dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .app-container-inner .dot i {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px
+    }
+
+    .app-container-inner .pill {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      padding: 6px 10px;
+      background: var(--chip);
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      color: var(--muted)
+    }
+
+    .app-container-inner .split {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px
+    }
+
+    @media(min-width:1100px) {
+      .app-container-inner .split {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    .app-container-inner .textzone {
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 10px;
+      border-radius: 12px;
+      max-height: 340px;
+      overflow: auto
+    }
+
+    .app-container-inner mark {
+      padding: 0 2px;
+      border-radius: 4px
+    }
+
+    .app-container-inner mark.tech {
+      background: rgba(100, 225, 255, .2);
+      outline: 1px solid rgba(100, 225, 255, .35)
+    }
+
+    .app-container-inner mark.hum {
+      background: rgba(255, 209, 102, .2);
+      outline: 1px solid rgba(255, 209, 102, .35)
+    }
+
+    .app-container-inner .gauges {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px
+    }
+
+    .app-container-inner .gauge {
+      background: linear-gradient(90deg, var(--chip), var(--card));
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative
+    }
+
+    .app-container-inner .gauge .bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, var(--accent), #74ffa3)
+    }
+
+    .app-container-inner .gauge .label {
+      position: relative;
+      padding: 6px 8px;
+      color: var(--muted)
+    }
+
+    .app-container-inner .status {
+      font-weight: 700;
+      color: var(--ink)
+    }
+
+    .app-container-inner .chiprow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .app-container-inner .node {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      background: var(--chip);
+      cursor: pointer
+    }
+
+    .app-container-inner .node.active {
+      background: var(--accent);
+      color: #01202a;
+      border-color: transparent
+    }
+
+    .app-container-inner .footer {
+      padding: 10px;
+      color: var(--muted);
+      border-top: 1px solid var(--line)
+    }
+
+    .app-container-inner .btn {
+      border: 1px solid var(--rule);
+      background: var(--chip);
+      color: var(--ink);
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer
+    }
+
+    .app-container-inner .btn.primary {
+      background: var(--accent);
+      color: #00131c;
+      border-color: transparent
+    }
+
+    .app-container-inner .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .app-container-inner .small {
+      font-size: .85rem;
+      color: var(--muted)
+    }
+
+    .app-container-inner .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace
+    }
+
+    /* --- Presentation Styles (with adjusted :root defaults for better integration) --- */
+    body {
+      margin: 0;
+      font: 16px/1.5 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink)
+    }
+
+    header,
+    footer {
+      padding: 12px 16px;
+      background: var(--chip);
+      color: var(--muted);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line)
+    }
+
+    header {
+      top: 0
+    }
+
+    footer {
+      bottom: 0;
+      border-top: 1px solid var(--line)
+    }
+
+    h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--hi)
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    button {
+      background: var(--chip);
+      border: 1px solid var(--rule);
+      color: var(--ink);
+      padding: 7px 10px;
+      border-radius: 10px;
+      cursor: pointer
+    }
+
+    button:hover {
+      border-color: var(--accent)
+    }
+
+    .slide {
+      display: none;
+      min-height: calc(100vh - 96px);
+      padding: 18px;
+      align-items: center;
+      justify-content: center
+    }
+
+    .slide.active {
+      display: flex
+    }
+
+    /* 16:9 stage for slide clarity */
+    .stage {
+      width: 100%;
+      max-width: 1400px;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: stretch;
+      justify-content: center
+    }
+
+    .content {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      display: flex;
+      flex-direction: column
+    }
+
+    .content h2 {
+      margin: 0 0 12px;
+      color: var(--hi);
+      font-size: 28px;
+      line-height: 1.2
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+      margin-top: 12px
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card h3 {
+      margin: 2px 0 10px;
+      color: var(--accent);
+      font-size: 18px
+    }
+
+    .card p,
+    .card ul.list,
+    .card ol.list {
+      flex-grow: 1;
+    }
+
+    /* Allow content to grow */
+    .rule {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--rule) 20%, var(--rule) 80%, transparent);
+      margin: 10px 0
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px
+    }
+
+    input,
+    textarea,
+    select {
+      background: var(--chip);
+      border: 1px solid var(--rule);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 8px;
+      width: 100%
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+      list-style-type: disc;
+      margin-left: 20px;
+      padding-left: 0;
+    }
+
+    .list li {
+      margin-bottom: 4px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--rule);
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .quote {
+      font-style: italic;
+      color: #cbd5ff
+    }
+
+    .callout {
+      background: var(--chip);
+      border: 1px solid var(--rule);
+      padding: 10px;
+      border-radius: 10px
+    }
+
+    .gridview {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      padding: 18px
+    }
+
+    .preview {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px
+    }
+
+    .preview h3 {
+      margin: 0 0 6px;
+      color: var(--hi)
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      text-align: center
+    }
+
+    .se,
+    .e,
+    .s {
+      display: none
+    }
+
+    /* These resizers are not functional in combined presentation */
+    @media (max-width:900px) {
+      .grid {
+        grid-template-columns: repeat(6, 1fr)
+      }
+    }
+
+    /* Newspaper theme tweaks for the whole document */
+    body[data-theme="news"] {
+      font-family: Georgia, "Times New Roman", serif
+    }
+
+    body[data-theme="news"] h1,
+    body[data-theme="news"] .content h2 {
+      letter-spacing: 0.2px
+    }
+
+    /* Specific styling for the embedded interactive app to fit the slide */
+    #slide13 .content {
+      padding: 0;
+      /* Remove padding from the slide content to allow the app to fill it */
+    }
+
+    #interactive-app-wrapper {
+      width: 100%;
+      height: 100%;
+      /* Fill the entire content area of the slide */
+      overflow: hidden;
+      /* Hide any overflow from the app */
+      border-radius: 14px;
+      /* Match the slide's border-radius */
+      display: flex;
+      /* Ensure the app container respects flex layout */
+    }
+
+    #interactive-app-wrapper .app {
+      width: 100%;
+      height: 100%;
+      min-height: auto;
+      /* Override min-height:100vh for nested context */
+    }
+
+    #interactive-app-wrapper .app header,
+    #interactive-app-wrapper .app .footer {
+      position: relative;
+      /* Make these relative inside the scrollable app */
+      top: auto;
+      bottom: auto;
+    }
+
+    #interactive-app-wrapper .app main {
+      flex-grow: 1;
+      /* Allow main to fill available space */
+      overflow-y: auto;
+      /* Make main scrollable if content exceeds height */
+    }
+
+    #project-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 48px;
+      background: #0f1520;
+      border-bottom: 1px solid #243044;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      z-index: 9999;
+      font-family: Inter, sans-serif;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    #project-nav a {
+      color: #a9a9a9;
+      text-decoration: none;
+      font-size: 13px;
+      margin-right: 20px;
+      font-weight: 500;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #project-nav a:hover {
+      color: #fff;
+    }
+
+    #project-nav a.active {
+      color: #7ad7ff;
+    }
+
+    #project-nav .divider {
+      height: 16px;
+      width: 1px;
+      background: #243044;
+      margin: 0 16px 0 0;
+    }
+
+    #project-nav .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    #project-nav .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #0f1520;
+      min-width: 160px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+      border: 1px solid #243044;
+      border-radius: 6px;
+      z-index: 10000;
+      padding: 8px 0;
+    }
+
+    #project-nav .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    #project-nav .dropdown-content a {
+      color: #a9a9a9;
+      padding: 8px 16px;
+      text-decoration: none;
+      display: block;
+      margin: 0;
+    }
+
+    #project-nav .dropdown-content a:hover {
+      background-color: #1a2332;
+      color: #fff;
+    }
+
+    /* Adjust body to not hide under fixed nav */
+    body {
+      padding-top: 48px;
+    }
+
+    /* Ensure header is below nav */
+    header {
+      top: 48px;
+    }
+  </style>
 </head>
+
 <body>
-<header>
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-    <h1>HUMAN — Human as Media & Intro as Medium</h1>
-    <div class="controls">
-      <button onclick="showSlide(0)">1 Title</button>
-      <button onclick="showSlide(1)">2 Paradox</button>
-      <button onclick="showSlide(2)">3 Divide</button>
-      <button onclick="showSlide(3)">4 Temporal Stress</button>
-      <button onclick="showSlide(4)">5 Consequences</button>
-      <button onclick="showSlide(5)">6 Emancipation</button>
-      <button onclick="showSlide(6)">7 Three Revolutions</button>
-      <button onclick="showSlide(7)">8 Obligation</button>
-      <button onclick="showSlide(8)">9 Thirst</button>
-      <button onclick="showSlide(9)">10 Sharing Contest</button>
-      <button onclick="showSlide(10)">11 Phatic</button>
-      <button onclick="showSlide(11)">12 Risks</button>
-      <button onclick="showSlide(12)">13 Noise & Chaos</button>
-      <button onclick="showSlide(13)">14 Interactive</button>
-      <button onclick="showGrid()">Grid</button>
+
+  <!-- Project Navigation -->
+  <div id="project-nav">
+    <a href="index.html" class="active">
+      <span style="font-weight:700;color:#fff;">HUMAN</span> <span style="opacity:0.6;font-size:11px;">HUB</span>
+    </a>
+    <div class="divider"></div>
+    <a href="miro.html">Miro Presentation</a>
+    <a href="arch.html">Architecture</a>
+    <a href="engine.html">Engine Prototype</a>
+    <a href="explorer.html" style="color:#95f29b;">Explorer</a>
+    <div class="divider"></div>
+
+    <div class="dropdown">
+      <a href="#" style="cursor:default;">Assets ▾</a>
+      <div class="dropdown-content">
+        <a href="Human%20as%20Media_%20The%20Emancipation%20of%20Authorship/1.png" target="_blank">1. Authorship
+          Scale</a>
+        <a href="Human%20as%20Media_%20The%20Emancipation%20of%20Authorship/2.png" target="_blank">2. Temporal
+          Stress</a>
+        <a href="Human%20as%20Media_%20The%20Emancipation%20of%20Authorship/3.png" target="_blank">3. Social Order</a>
+        <a href="Human%20as%20Media_%20The%20Emancipation%20of%20Authorship/4.png" target="_blank">4. Thirst for
+          Response</a>
+        <a href="Human%20as%20Media_%20The%20Emancipation%20of%20Authorship/5.png" target="_blank">5. Sharing
+          Contest</a>
+        <a href="Human%20as%20Media_%20The%20Emancipation%20of%20Authorship/6.png" target="_blank">6. Phatic
+          Dominance</a>
+        <a href="Human%20as%20Media_%20The%20Emancipation%20of%20Authorship/7.png" target="_blank">7. Risks &
+          Addiction</a>
+        <a href="Human%20as%20Media_%20The%20Emancipation%20of%20Authorship/8.png" target="_blank">8. Noise & Chaos</a>
+        <a href="Human%20as%20Media_%20The%20Emancipation%20of%20Authorship/9.png" target="_blank">9. Viral Editor</a>
+      </div>
     </div>
   </div>
-</header>
-
-<!-- Slide 1: Title -->
-<section class="slide active" id="slide0">
-  <div class="stage"><div class="content"><h2>The Emancipation of Authorship: Navigating Temporal Stress & The New Social Order</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 7">
-        <h3>Subtitle</h3>
-        <p><em>A Theory of Digital Society and Human Adaptation</em></p>
-        <div class="rule"></div>
-        <div class="list" style="list-style-type: none; margin-left: 0;">
-          <span class="chip">Authorship at Scale</span>
-          <span class="chip">Temporal Stress</span>
-          <span class="chip">New Social Order</span>
-        </div>
-      </div>
-      <div class="card" style="grid-column: span 5">
-        <h3>Use</h3>
-        <label>Export</label>
-        <button onclick="window.print()" style="width:100%">Print / PDF</button>
-        <div class="rule"></div>
-        <label>Theme Accent</label>
-        <select id="themeSel" onchange="swapTheme(this.value)">
-          <option value="bw" selected>Black/White</option>
-          <option value="news">Newspaper</option>
-          <option value="sun">Sunrise</option>
-          <option value="zen">Zen VCR</option>
-        </select>
+  <header>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <h1>HUMAN — Human as Media & Intro as Medium</h1>
+      <div class="controls">
+        <button onclick="showSlide(0)">1 Title</button>
+        <button onclick="showSlide(1)">2 Paradox</button>
+        <button onclick="showSlide(2)">3 Divide</button>
+        <button onclick="showSlide(3)">4 Temporal Stress</button>
+        <button onclick="showSlide(4)">5 Consequences</button>
+        <button onclick="showSlide(5)">6 Emancipation</button>
+        <button onclick="showSlide(6)">7 Three Revolutions</button>
+        <button onclick="showSlide(7)">8 Obligation</button>
+        <button onclick="showSlide(8)">9 Thirst</button>
+        <button onclick="showSlide(9)">10 Sharing Contest</button>
+        <button onclick="showSlide(10)">11 Phatic</button>
+        <button onclick="showSlide(11)">12 Risks</button>
+        <button onclick="showSlide(12)">13 Noise & Chaos</button>
+        <button onclick="showSlide(13)">14 Interactive</button>
+        <button onclick="showGrid()">Grid</button>
       </div>
     </div>
-  </div></div>
-</section>
+  </header>
 
-<!-- Slide 14: Interactive Prototype Embed (content from the first HTML document) -->
-<section class="slide" id="slide13">
-  <div class="stage">
-    <div class="content">
-      <h2>Interactive — Intro as Medium</h2>
-      <div class="grid">
-        <div class="card" style="grid-column: span 12; padding:0; overflow:hidden; border:0; box-shadow:none;">
-          <div id="interactive-app-wrapper" class="app-container-inner">
-            <div class="app" id="app-prototype"> <!-- Changed ID to avoid conflict with presentation "app" div if one existed -->
-              <header>
-                <div class="head">
-                  <span class="badge">HUMAN — Intro ➜ Medium</span>
-                  <div class="row small">
-                    <span>Dynamic explorable built from the Introduction & Chapter 1 corpus</span>
+  <!-- Slide 1: Title -->
+  <section class="slide active" id="slide0">
+    <div class="stage">
+      <div class="content">
+        <h2>The Emancipation of Authorship: Navigating Temporal Stress & The New Social Order</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 7">
+            <h3>Subtitle</h3>
+            <p><em>A Theory of Digital Society and Human Adaptation</em></p>
+            <div class="rule"></div>
+            <div class="list" style="list-style-type: none; margin-left: 0;">
+              <span class="chip">Authorship at Scale</span>
+              <span class="chip">Temporal Stress</span>
+              <span class="chip">New Social Order</span>
+            </div>
+          </div>
+          <div class="card" style="grid-column: span 5">
+            <h3>Use</h3>
+            <label>Export</label>
+            <button onclick="window.print()" style="width:100%">Print / PDF</button>
+            <div class="rule"></div>
+            <label>Theme Accent</label>
+            <select id="themeSel" onchange="swapTheme(this.value)">
+              <option value="bw" selected>Black/White</option>
+              <option value="news">Newspaper</option>
+              <option value="sun">Sunrise</option>
+              <option value="zen">Zen VCR</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 14: Interactive Prototype Embed (content from the first HTML document) -->
+  <section class="slide" id="slide13">
+    <div class="stage">
+      <div class="content">
+        <h2>Interactive — Intro as Medium</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 12; padding:0; overflow:hidden; border:0; box-shadow:none;">
+            <div id="interactive-app-wrapper" class="app-container-inner">
+              <div class="app" id="app-prototype">
+                <!-- Changed ID to avoid conflict with presentation "app" div if one existed -->
+                <header>
+                  <div class="head">
+                    <span class="badge">HUMAN — Intro ➜ Medium</span>
+                    <div class="row small">
+                      <span>Dynamic explorable built from the Introduction & Chapter 1 corpus</span>
+                    </div>
                   </div>
-                </div>
-                <div class="tabs" id="tabs"></div>
-              </header>
+                  <div class="tabs" id="tabs"></div>
+                </header>
 
-              <main>
-                <!-- LEFT COLUMN (interactive views) -->
-                <div class="rows" id="leftCol"></div>
+                <main>
+                  <!-- LEFT COLUMN (interactive views) -->
+                  <div class="rows" id="leftCol"></div>
 
-                <!-- RIGHT COLUMN (text + concept web + model) -->
-                <div class="rows" id="rightCol"></div>
-              </main>
+                  <!-- RIGHT COLUMN (text + concept web + model) -->
+                  <div class="rows" id="rightCol"></div>
+                </main>
 
-              <div class="footer">
-                <div class="row">
-                  <button class="btn" id="reset">Reset</button>
-                  <button class="btn" id="exportState">Export State JSON</button>
-                  <button class="btn" id="importState">Import State</button>
-                  <input type="file" id="importFile" accept="application/json" style="display:none" />
-                  <span class="small">Tip: rotate to landscape for wider charts.</span>
+                <div class="footer">
+                  <div class="row">
+                    <button class="btn" id="reset">Reset</button>
+                    <button class="btn" id="exportState">Export State JSON</button>
+                    <button class="btn" id="importState">Import State</button>
+                    <input type="file" id="importFile" accept="application/json" style="display:none" />
+                    <span class="small">Tip: rotate to landscape for wider charts.</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -229,489 +845,561 @@
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Slide 2: Paradox of Progress -->
-<section class="slide" id="slide1">
-  <div class="stage"><div class="content"><h2>Introduction — The Paradox of Progress</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 7">
-        <h3>Problem</h3>
-        <p>Technological progress outpaces human well‑being and social adaptation.</p>
-        <div class="callout quote">“We’ve got radio, but not happiness… So we’re still waiting for happiness.” — Ilya Ilf (1930s)</div>
-        <div class="callout quote">“Everything is amazing right now, and nobody’s happy.” — Louis C.K. (80 years later)</div>
+  <!-- Slide 2: Paradox of Progress -->
+  <section class="slide" id="slide1">
+    <div class="stage">
+      <div class="content">
+        <h2>Introduction — The Paradox of Progress</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 7">
+            <h3>Problem</h3>
+            <p>Technological progress outpaces human well‑being and social adaptation.</p>
+            <div class="callout quote">“We’ve got radio, but not happiness… So we’re still waiting for happiness.” —
+              Ilya Ilf (1930s)</div>
+            <div class="callout quote">“Everything is amazing right now, and nobody’s happy.” — Louis C.K. (80 years
+              later)</div>
+          </div>
+          <div class="card" style="grid-column: span 5;max-height:380px;overflow:auto">
+            <h3>Core Disconnect</h3>
+            <ul class="list">
+              <li>Abundance of novelty ≠ flourishing.</li>
+              <li>Attention captured; adaptation lags.</li>
+              <li>Well‑being becomes a second‑order effect.</li>
+              <li>Distraction from fundamental human concerns.</li>
+            </ul>
+          </div>
+        </div>
       </div>
-      <div class="card" style="grid-column: span 5;max-height:380px;overflow:auto">
-        <h3>Core Disconnect</h3>
-        <ul class="list">
-          <li>Abundance of novelty ≠ flourishing.</li>
-          <li>Attention captured; adaptation lags.</li>
-          <li>Well‑being becomes a second‑order effect.</li>
-          <li>Distraction from fundamental human concerns.</li>
-        </ul>
+  </section>
+
+  <!-- Slide 3: Temporal Divide -->
+  <section class="slide" id="slide2">
+    <div class="stage">
+      <div class="content">
+        <h2>The Temporal Divide: Technocrats vs. Humanities</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 6">
+            <h3>Technocratic Approach</h3>
+            <ul class="list">
+              <li>Innovation, monetization of the new.</li>
+              <li>Future‑oriented; thrives on speed.</li>
+              <li>Prepares society for tomorrow.</li>
+              <li>Highly productive, focused on technical abilities.</li>
+            </ul>
+          </div>
+          <div class="card" style="grid-column: span 6">
+            <h3>Humanities‑Oriented Philosophy</h3>
+            <ul class="list">
+              <li>Tradition, present, and the past (making new familiar).</li>
+              <li>Transforms the new into habit; maintains social cohesion.</li>
+              <li>Slow adaptation; values what lasts.</li>
+            </ul>
+          </div>
+          <div class="card" style="grid-column: span 12">
+            <label>Historic Balance</label>
+            <div class="callout">Worked when eras stretched over generations; breaks under acceleration.</div>
+          </div>
+        </div>
       </div>
+  </section>
+
+  <!-- Slide 4: Temporal Stress -->
+  <section class="slide" id="slide3">
+    <div class="stage">
+      <div class="content">
+        <h2>Accelerated Time & Temporal Stress</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 6">
+            <h3>Pivotal Generation</h3>
+            <ul class="list">
+              <li>First to outlive an era.</li>
+              <li>Lives across agrarian → industrial → post‑industrial.</li>
+              <li>Unprecedented in human history.</li>
+            </ul>
+          </div>
+          <div class="card" style="grid-column: span 6">
+            <h3>Temporal Stress</h3>
+            <ul class="list">
+              <li>Habit cannot keep pace with innovation.</li>
+              <li>When era &lt; generation → adaptation breaks.</li>
+              <li>Balance between technical innovation & cultural adaptation collapses.</li>
+            </ul>
+          </div>
+          <div class="card" style="grid-column: span 12">
+            <div class="callout">Why “everything is amazing and nobody’s happy.”</div>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- Slide 5: Consequences -->
+  <section class="slide" id="slide4">
+    <div class="stage">
+      <div class="content">
+        <h2>Consequences of Temporal Stress</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 4">
+            <h3>Loss of Cohesion</h3>
+            <p>Humanities lag → society loses shared narratives; concepts become mere review.</p>
+          </div>
+          <div class="card" style="grid-column: span 4">
+            <h3>Sensory Disorientation</h3>
+            <p>From leafing pages to 3D manipulation; tools change faster than senses adapt.</p>
+            <p class="quote">Toffler's "Future Shock" has become Rushkoff's "Present Shock."</p>
+          </div>
+          <div class="card" style="grid-column: span 4">
+            <h3>Regression/Aggression</h3>
+            <ul class="list">
+              <li>Reactionism, xenophobia, and new barbarism emerge as stress responses.</li>
+              <li>Extremism & terrorism as flip side of ICT development.</li>
+            </ul>
+          </div>
+          <div class="card" style="grid-column: span 12">
+            <div class="quote">“The ‘software’ of humankind cannot keep pace with the technology, the ‘hardware,’ of
+              civilization.” — Sergei Kapitsa</div>
+            <p style="margin-top: 10px;">Humanities often instinctively oppose innovation. Proposed: Unite with
+              technocrats, offer social "software."</p>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- Slide 6: Emancipation of Authorship -->
+  <section class="slide" id="slide5">
+    <div class="stage">
+      <div class="content">
+        <h2>Chapter 1 — The Emancipation of Authorship</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 7">
+            <h3>The Explosion</h3>
+            <ul class="list">
+              <li><strong>History:</strong> &lt; 300M lifetime authors (across all time).</li>
+              <li><strong>Internet era:</strong> 2B+ public authors in ~20 yrs.</li>
+              <li><strong>Projection:</strong> 8–9B potential authors at global penetration (80% of 10-12B population).
+              </li>
+            </ul>
+          </div>
+          <div class="card" style="grid-column: span 5">
+            <h3>Implication</h3>
+            <p>This fundamental transition is an unprecedented explosion of authorship.</p>
+            <p>Unprecedented growth → growing pains; consequences not yet fully assessed.</p>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- Slide 7: Three Revolutions -->
+  <section class="slide" id="slide6">
+    <div class="stage">
+      <div class="content">
+        <h2>Three Revolutions of Content Emancipation</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 4">
+            <h3>1) Phonetic Script</h3>
+            <p>Demotic script (c. 7th C. BC) → emancipation of <em>writing</em>.</p>
+            <p>Loss of palace/temple monopoly; downfall of ancient kingdoms.</p>
+          </div>
+          <div class="card" style="grid-column: span 4">
+            <h3>2) Printing Press</h3>
+            <p>Mass books (c. 1445) → emancipation of <em>reading</em>.</p>
+            <p>Reformation, revolutions, modernity; loss of monopoly over interpretation.</p>
+          </div>
+          <div class="card" style="grid-column: span 4">
+            <h3>3) Internet</h3>
+            <p>Connected devices (present) → emancipation of <em>authorship</em>.</p>
+            <p>Individuals gained unlimited right to share thoughts; collapse of monopoly over meaning.</p>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- Slide 8: Obligation of Publishing -->
+  <section class="slide" id="slide7">
+    <div class="stage">
+      <div class="content">
+        <h2>Publishing as Obligation — “I Publish, Therefore I Am”</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 7">
+            <h3>Presence → Necessity</h3>
+            <ul class="list">
+              <li>Absence online = apology / social invisibility.</li>
+              <li>Business axiom → human axiom: no links, no human.</li>
+              <li>Internet is a requirement for contemporaneity.</li>
+            </ul>
+            <div class="rule"></div>
+            <div class="callout">Principle: What is possible becomes obligatory. (McLuhan: "The medium shapes the
+              user.")</div>
+          </div>
+          <div class="card" style="grid-column: span 5">
+            <h3>Participation Shift</h3>
+            <ul class="list">
+              <li>Passive audience → participant creators.</li>
+              <li>Author ↔ public boundary blurs.</li>
+              <li>Simple, passive consumption is insufficient.</li>
+              <li>Examples: seniors posting; heads of state tweeting.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- Slide 9: Thirst for Response -->
+  <section class="slide" id="slide8">
+    <div class="stage">
+      <div class="content">
+        <h2>The Thirst for Response — The Sixth Sense</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 6">
+            <h3>Core Drive</h3>
+            <ul class="list">
+              <li>Making is social: “making‑and‑sharing.”</li>
+              <li>To be reflected in others = to exist.</li>
+              <li>Traffic/metrics = quantified recognition.</li>
+              <li>Unconscious "thirst for response" drives Internet activity.</li>
+            </ul>
+          </div>
+          <div class="card" style="grid-column: span 6">
+            <h3>Foundations</h3>
+            <ul class="list">
+              <li>McLuhan: fascination with self‑extensions.</li>
+              <li>Hegel: struggle for recognition (response is "substance of recognition").</li>
+              <li>Phatic rituals enroll and affirm group belonging.</li>
+              <li>The "sixth sense – the social sense."</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- Slide 10: Sharing Contest -->
+  <section class="slide" id="slide9">
+    <div class="stage">
+      <div class="content">
+        <h2>The Sharing Contest — A Content‑Based Hierarchy</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 7">
+            <h3>Status Logic</h3>
+            <ul class="list">
+              <li>“I share, therefore I am significant.”</li>
+              <li>Significance = earlier, frequent, important communication.</li>
+              <li>Old ranks invert: possession → communication.</li>
+              <li>Power built on information deficit now irrelevant.</li>
+            </ul>
+          </div>
+          <div class="card" style="grid-column: span 5;max-height:380px;overflow:auto">
+            <h3>Hierarchy Levels</h3>
+            <ol class="list">
+              <li>Knows & communicates what most don’t (yet).</li>
+              <li>Knows before others know.</li>
+              <li>Knows what others know.</li>
+              <li>Doesn’t know what everyone knows.</li>
+            </ol>
+            <p>This contest drives advancement, regulated by positive & negative reactions.</p>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- Slide 11: Phatic Dominance -->
+  <section class="slide" id="slide10">
+    <div class="stage">
+      <div class="content">
+        <h2>Phatic Dominance — Presence over Information</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 6">
+            <h3>Redefinition</h3>
+            <p>Communication to maintain contact and prove existence: “They react, therefore I am.”</p>
+            <p>Linguistic Analogy: Phatic function - establish contact, not primarily convey info.</p>
+          </div>
+          <div class="card" style="grid-column: span 6">
+            <h3>Effect</h3>
+            <ul class="list">
+              <li>Content as vehicle for resonance.</li>
+              <li>Continuous social authentication.</li>
+              <li>Presence metrics dominate truth metrics.</li>
+              <li>"Our goal on the Internet is not to inform or be informed. Our goal is resonance."</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- Slide 12: Risks / Addiction -->
+  <section class="slide" id="slide11">
+    <div class="stage">
+      <div class="content">
+        <h2>Emotions, Addiction, & Risks of Response</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 6">
+            <h3>Narcotic Loop</h3>
+            <ul class="list">
+              <li>High‑valence emotions fuel authorship.</li>
+              <li>Shortened feedback loops → compulsion.</li>
+              <li>Virtual presence crowds physical time.</li>
+              <li>McLuhan: "Narcissus" and "narcosis" share roots.</li>
+              <li>Analogy: Olds and Milner's rat experiments.</li>
+            </ul>
+          </div>
+          <div class="card" style="grid-column: span 6">
+            <h3>Hygiene Needed</h3>
+            <ul class="list">
+              <li>No coherent code of Internet hygiene.</li>
+              <li>Risks appear faster than adaptation.</li>
+              <li>Potential societal “culling” for those who cannot adapt.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- Slide 13: Noise & Chaos + Viral Editor Teaser -->
+  <section class="slide" id="slide12">
+    <div class="stage">
+      <div class="content">
+        <h2>Emancipation of Opinions — Noise & Chaos → Viral Editor</h2>
+        <div class="grid">
+          <div class="card" style="grid-column: span 7">
+            <h3>Downside of Unlimited Authorship</h3>
+            <ul class="list">
+              <li>Quantity of publicators ≈ readers → abominable signal‑to‑noise.</li>
+              <li>Authority erodes; familiarity becomes intrusive.</li>
+              <li>Ortega y Gasset's "Mass-Man" phenomenon.</li>
+              <li>Equality of opinion & freedom of publication threaten formal authority.</li>
+            </ul>
+          </div>
+          <div class="card" style="grid-column: span 5">
+            <h3>Emergent Solution</h3>
+            <p>Despite noise and chaos, free authorship has a "built‑in mechanism for determining value."</p>
+            <p><strong>Viral Editor:</strong> built‑in, crowd‑curated value filter that compensates for lost
+              gatekeeping.</p>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- Grid View of all slides -->
+  <section class="gridview" id="gridview">
+    <div class="preview">
+      <h3>1 Title</h3>
+      <p>Authorship at scale, temporal stress, social order.</p>
     </div>
-  </div>
-</section>
-
-<!-- Slide 3: Temporal Divide -->
-<section class="slide" id="slide2">
-  <div class="stage"><div class="content"><h2>The Temporal Divide: Technocrats vs. Humanities</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 6">
-        <h3>Technocratic Approach</h3>
-        <ul class="list">
-          <li>Innovation, monetization of the new.</li>
-          <li>Future‑oriented; thrives on speed.</li>
-          <li>Prepares society for tomorrow.</li>
-          <li>Highly productive, focused on technical abilities.</li>
-        </ul>
-      </div>
-      <div class="card" style="grid-column: span 6">
-        <h3>Humanities‑Oriented Philosophy</h3>
-        <ul class="list">
-          <li>Tradition, present, and the past (making new familiar).</li>
-          <li>Transforms the new into habit; maintains social cohesion.</li>
-          <li>Slow adaptation; values what lasts.</li>
-        </ul>
-      </div>
-      <div class="card" style="grid-column: span 12">
-        <label>Historic Balance</label>
-        <div class="callout">Worked when eras stretched over generations; breaks under acceleration.</div>
-      </div>
+    <div class="preview">
+      <h3>2 Paradox</h3>
+      <p>Progress outpaces adaptation; happiness gap.</p>
     </div>
-  </div>
-</section>
-
-<!-- Slide 4: Temporal Stress -->
-<section class="slide" id="slide3">
-  <div class="stage"><div class="content"><h2>Accelerated Time & Temporal Stress</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 6">
-        <h3>Pivotal Generation</h3>
-        <ul class="list">
-          <li>First to outlive an era.</li>
-          <li>Lives across agrarian → industrial → post‑industrial.</li>
-          <li>Unprecedented in human history.</li>
-        </ul>
-      </div>
-      <div class="card" style="grid-column: span 6">
-        <h3>Temporal Stress</h3>
-        <ul class="list">
-          <li>Habit cannot keep pace with innovation.</li>
-          <li>When era &lt; generation → adaptation breaks.</li>
-          <li>Balance between technical innovation & cultural adaptation collapses.</li>
-        </ul>
-      </div>
-      <div class="card" style="grid-column: span 12">
-        <div class="callout">Why “everything is amazing and nobody’s happy.”</div>
-      </div>
+    <div class="preview">
+      <h3>3 Divide</h3>
+      <p>Technocrats × Humanities; pace mismatch.</p>
     </div>
-  </div>
-</section>
-
-<!-- Slide 5: Consequences -->
-<section class="slide" id="slide4">
-  <div class="stage"><div class="content"><h2>Consequences of Temporal Stress</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 4">
-        <h3>Loss of Cohesion</h3>
-        <p>Humanities lag → society loses shared narratives; concepts become mere review.</p>
-      </div>
-      <div class="card" style="grid-column: span 4">
-        <h3>Sensory Disorientation</h3>
-        <p>From leafing pages to 3D manipulation; tools change faster than senses adapt.</p>
-        <p class="quote">Toffler's "Future Shock" has become Rushkoff's "Present Shock."</p>
-      </div>
-      <div class="card" style="grid-column: span 4">
-        <h3>Regression/Aggression</h3>
-        <ul class="list">
-          <li>Reactionism, xenophobia, and new barbarism emerge as stress responses.</li>
-          <li>Extremism & terrorism as flip side of ICT development.</li>
-        </ul>
-      </div>
-      <div class="card" style="grid-column: span 12">
-        <div class="quote">“The ‘software’ of humankind cannot keep pace with the technology, the ‘hardware,’ of civilization.” — Sergei Kapitsa</div>
-        <p style="margin-top: 10px;">Humanities often instinctively oppose innovation. Proposed: Unite with technocrats, offer social "software."</p>
-      </div>
+    <div class="preview">
+      <h3>4 Stress</h3>
+      <p>Eras shorter than generations → stress.</p>
     </div>
-  </div>
-</section>
-
-<!-- Slide 6: Emancipation of Authorship -->
-<section class="slide" id="slide5">
-  <div class="stage"><div class="content"><h2>Chapter 1 — The Emancipation of Authorship</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 7">
-        <h3>The Explosion</h3>
-        <ul class="list">
-          <li><strong>History:</strong> &lt; 300M lifetime authors (across all time).</li>
-          <li><strong>Internet era:</strong> 2B+ public authors in ~20 yrs.</li>
-          <li><strong>Projection:</strong> 8–9B potential authors at global penetration (80% of 10-12B population).</li>
-        </ul>
-      </div>
-      <div class="card" style="grid-column: span 5">
-        <h3>Implication</h3>
-        <p>This fundamental transition is an unprecedented explosion of authorship.</p>
-        <p>Unprecedented growth → growing pains; consequences not yet fully assessed.</p>
-      </div>
+    <div class="preview">
+      <h3>5 Consequences</h3>
+      <p>Cohesion loss, disorientation, regression.</p>
     </div>
-  </div>
-</section>
-
-<!-- Slide 7: Three Revolutions -->
-<section class="slide" id="slide6">
-  <div class="stage"><div class="content"><h2>Three Revolutions of Content Emancipation</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 4">
-        <h3>1) Phonetic Script</h3>
-        <p>Demotic script (c. 7th C. BC) → emancipation of <em>writing</em>.</p>
-        <p>Loss of palace/temple monopoly; downfall of ancient kingdoms.</p>
-      </div>
-      <div class="card" style="grid-column: span 4">
-        <h3>2) Printing Press</h3>
-        <p>Mass books (c. 1445) → emancipation of <em>reading</em>.</p>
-        <p>Reformation, revolutions, modernity; loss of monopoly over interpretation.</p>
-      </div>
-      <div class="card" style="grid-column: span 4">
-        <h3>3) Internet</h3>
-        <p>Connected devices (present) → emancipation of <em>authorship</em>.</p>
-        <p>Individuals gained unlimited right to share thoughts; collapse of monopoly over meaning.</p>
-      </div>
+    <div class="preview">
+      <h3>6 Emancipation</h3>
+      <p>Explosion of authorship.</p>
     </div>
-  </div>
-</section>
-
-<!-- Slide 8: Obligation of Publishing -->
-<section class="slide" id="slide7">
-  <div class="stage"><div class="content"><h2>Publishing as Obligation — “I Publish, Therefore I Am”</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 7">
-        <h3>Presence → Necessity</h3>
-        <ul class="list">
-          <li>Absence online = apology / social invisibility.</li>
-          <li>Business axiom → human axiom: no links, no human.</li>
-          <li>Internet is a requirement for contemporaneity.</li>
-        </ul>
-        <div class="rule"></div>
-        <div class="callout">Principle: What is possible becomes obligatory. (McLuhan: "The medium shapes the user.")</div>
-      </div>
-      <div class="card" style="grid-column: span 5">
-        <h3>Participation Shift</h3>
-        <ul class="list">
-          <li>Passive audience → participant creators.</li>
-          <li>Author ↔ public boundary blurs.</li>
-          <li>Simple, passive consumption is insufficient.</li>
-          <li>Examples: seniors posting; heads of state tweeting.</li>
-        </ul>
-      </div>
+    <div class="preview">
+      <h3>7 Revolutions</h3>
+      <p>Writing, reading, authorship.</p>
     </div>
-  </div>
-</section>
-
-<!-- Slide 9: Thirst for Response -->
-<section class="slide" id="slide8">
-  <div class="stage"><div class="content"><h2>The Thirst for Response — The Sixth Sense</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 6">
-        <h3>Core Drive</h3>
-        <ul class="list">
-          <li>Making is social: “making‑and‑sharing.”</li>
-          <li>To be reflected in others = to exist.</li>
-          <li>Traffic/metrics = quantified recognition.</li>
-          <li>Unconscious "thirst for response" drives Internet activity.</li>
-        </ul>
-      </div>
-      <div class="card" style="grid-column: span 6">
-        <h3>Foundations</h3>
-        <ul class="list">
-          <li>McLuhan: fascination with self‑extensions.</li>
-          <li>Hegel: struggle for recognition (response is "substance of recognition").</li>
-          <li>Phatic rituals enroll and affirm group belonging.</li>
-          <li>The "sixth sense – the social sense."</li>
-        </ul>
-      </div>
+    <div class="preview">
+      <h3>8 Obligation</h3>
+      <p>Presence becomes duty.</p>
     </div>
-  </div>
-</section>
-
-<!-- Slide 10: Sharing Contest -->
-<section class="slide" id="slide9">
-  <div class="stage"><div class="content"><h2>The Sharing Contest — A Content‑Based Hierarchy</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 7">
-        <h3>Status Logic</h3>
-        <ul class="list">
-          <li>“I share, therefore I am significant.”</li>
-          <li>Significance = earlier, frequent, important communication.</li>
-          <li>Old ranks invert: possession → communication.</li>
-          <li>Power built on information deficit now irrelevant.</li>
-        </ul>
-      </div>
-      <div class="card" style="grid-column: span 5;max-height:380px;overflow:auto">
-        <h3>Hierarchy Levels</h3>
-        <ol class="list">
-          <li>Knows & communicates what most don’t (yet).</li>
-          <li>Knows before others know.</li>
-          <li>Knows what others know.</li>
-          <li>Doesn’t know what everyone knows.</li>
-        </ol>
-        <p>This contest drives advancement, regulated by positive & negative reactions.</p>
-      </div>
+    <div class="preview">
+      <h3>9 Thirst</h3>
+      <p>Recognition as sixth sense.</p>
     </div>
-  </div>
-</section>
-
-<!-- Slide 11: Phatic Dominance -->
-<section class="slide" id="slide10">
-  <div class="stage"><div class="content"><h2>Phatic Dominance — Presence over Information</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 6">
-        <h3>Redefinition</h3>
-        <p>Communication to maintain contact and prove existence: “They react, therefore I am.”</p>
-        <p>Linguistic Analogy: Phatic function - establish contact, not primarily convey info.</p>
-      </div>
-      <div class="card" style="grid-column: span 6">
-        <h3>Effect</h3>
-        <ul class="list">
-          <li>Content as vehicle for resonance.</li>
-          <li>Continuous social authentication.</li>
-          <li>Presence metrics dominate truth metrics.</li>
-          <li>"Our goal on the Internet is not to inform or be informed. Our goal is resonance."</li>
-        </ul>
-      </div>
+    <div class="preview">
+      <h3>10 Contest</h3>
+      <p>Status by sharing earlier.</p>
     </div>
-  </div>
-</section>
-
-<!-- Slide 12: Risks / Addiction -->
-<section class="slide" id="slide11">
-  <div class="stage"><div class="content"><h2>Emotions, Addiction, & Risks of Response</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 6">
-        <h3>Narcotic Loop</h3>
-        <ul class="list">
-          <li>High‑valence emotions fuel authorship.</li>
-          <li>Shortened feedback loops → compulsion.</li>
-          <li>Virtual presence crowds physical time.</li>
-          <li>McLuhan: "Narcissus" and "narcosis" share roots.</li>
-          <li>Analogy: Olds and Milner's rat experiments.</li>
-        </ul>
-      </div>
-      <div class="card" style="grid-column: span 6">
-        <h3>Hygiene Needed</h3>
-        <ul class="list">
-          <li>No coherent code of Internet hygiene.</li>
-          <li>Risks appear faster than adaptation.</li>
-          <li>Potential societal “culling” for those who cannot adapt.</li>
-        </ul>
-      </div>
+    <div class="preview">
+      <h3>11 Phatic</h3>
+      <p>Presence over information.</p>
     </div>
-  </div>
-</section>
-
-<!-- Slide 13: Noise & Chaos + Viral Editor Teaser -->
-<section class="slide" id="slide12">
-  <div class="stage"><div class="content"><h2>Emancipation of Opinions — Noise & Chaos → Viral Editor</h2>
-    <div class="grid">
-      <div class="card" style="grid-column: span 7">
-        <h3>Downside of Unlimited Authorship</h3>
-        <ul class="list">
-          <li>Quantity of publicators ≈ readers → abominable signal‑to‑noise.</li>
-          <li>Authority erodes; familiarity becomes intrusive.</li>
-          <li>Ortega y Gasset's "Mass-Man" phenomenon.</li>
-          <li>Equality of opinion & freedom of publication threaten formal authority.</li>
-        </ul>
-      </div>
-      <div class="card" style="grid-column: span 5">
-        <h3>Emergent Solution</h3>
-        <p>Despite noise and chaos, free authorship has a "built‑in mechanism for determining value."</p>
-        <p><strong>Viral Editor:</strong> built‑in, crowd‑curated value filter that compensates for lost gatekeeping.</p>
-      </div>
+    <div class="preview">
+      <h3>12 Risks</h3>
+      <p>Narcotic feedback loops.</p>
     </div>
-  </div>
-</section>
+    <div class="preview">
+      <h3>13 Viral Editor</h3>
+      <p>Noise → emergent curation.</p>
+    </div>
+    <div class="preview">
+      <h3>14 Interactive</h3>
+      <p>Explorable views integrated.</p>
+    </div>
+  </section>
 
-<!-- Grid View of all slides -->
-<section class="gridview" id="gridview">
-  <div class="preview"><h3>1 Title</h3><p>Authorship at scale, temporal stress, social order.</p></div>
-  <div class="preview"><h3>2 Paradox</h3><p>Progress outpaces adaptation; happiness gap.</p></div>
-  <div class="preview"><h3>3 Divide</h3><p>Technocrats × Humanities; pace mismatch.</p></div>
-  <div class="preview"><h3>4 Stress</h3><p>Eras shorter than generations → stress.</p></div>
-  <div class="preview"><h3>5 Consequences</h3><p>Cohesion loss, disorientation, regression.</p></div>
-  <div class="preview"><h3>6 Emancipation</h3><p>Explosion of authorship.</p></div>
-  <div class="preview"><h3>7 Revolutions</h3><p>Writing, reading, authorship.</p></div>
-  <div class="preview"><h3>8 Obligation</h3><p>Presence becomes duty.</p></div>
-  <div class="preview"><h3>9 Thirst</h3><p>Recognition as sixth sense.</p></div>
-  <div class="preview"><h3>10 Contest</h3><p>Status by sharing earlier.</p></div>
-  <div class="preview"><h3>11 Phatic</h3><p>Presence over information.</p></div>
-  <div class="preview"><h3>12 Risks</h3><p>Narcotic feedback loops.</p></div>
-  <div class="preview"><h3>13 Viral Editor</h3><p>Noise → emergent curation.</p></div>
-  <div class="preview"><h3>14 Interactive</h3><p>Explorable views integrated.</p></div>
-</section>
+  <footer>
+    Use buttons to navigate slides or open Grid. Print to make a PDF deck.
+  </footer>
 
-<footer>
-  Use buttons to navigate slides or open Grid. Print to make a PDF deck.
-</footer>
-
-<!-- Optional: keep the original POML for provenance -->
-<script type="text/poml" id="source-poml">
+  <!-- Optional: keep the original POML for provenance -->
+  <script type="text/poml" id="source-poml">
   <!-- Truncated here for brevity in runtime; full POML lives in the conversation source. -->
 </script>
 
-<script>
-// Flag to ensure the interactive app is only initialized once
-let interactiveAppInitialized = false;
+  <script>
+    // Flag to ensure the interactive app is only initialized once
+    let interactiveAppInitialized = false;
 
-// Function to initialize the interactive prototype
-function initInteractiveApp() {
-  if (interactiveAppInitialized) return; // Prevent re-initialization
+    // Function to initialize the interactive prototype
+    function initInteractiveApp() {
+      if (interactiveAppInitialized) return; // Prevent re-initialization
 
-  /*********************
-   * DATA: Corpus + Terms (from interactive-mir-00.html)
-   *********************/
-  const corpus = {
-    texts:[
-      {
-        id:'intro_enriched',
-        title:'Introduction (enriched framing)',
-        text:`“So we’ve got radio already, but we’re still waiting for happiness,” observed Soviet satirist Ilya Ilf.[1] Eighty years later, Louis C.K. echoed the same intuition: “Everything is amazing right now, and nobody’s happy.”[2]
+      /*********************
+       * DATA: Corpus + Terms (from interactive-mir-00.html)
+       *********************/
+      const corpus = {
+        texts: [
+          {
+            id: 'intro_enriched',
+            title: 'Introduction (enriched framing)',
+            text: `“So we’ve got radio already, but we’re still waiting for happiness,” observed Soviet satirist Ilya Ilf.[1] Eighty years later, Louis C.K. echoed the same intuition: “Everything is amazing right now, and nobody’s happy.”[2]
 
 The changes taking place today are bound to the Internet. Abundant technological novelties enthrall and distract from a fundamental question: what is happening to the individual and to society now? Technological change is relatively easy to describe and even predict; human nature and culture adapt far more slowly. Tradition lies at the centre of the humanities; innovation anchors the technocratic approach. Technocrats push forward, while the humanities metabolise the new into habit and cohesion. This balance worked when eras stretched across generations. In our time, eras compress within a single lifetime — agrarian → industrial → post‑industrial → networked — producing temporal stress when habit cannot keep up with innovation. Present Shock replaces Future Shock. Meanwhile, the emancipation of authorship — billions of new public authors — rewires social hierarchy around response and sharing.`
-      },
-      {
-        id:'intro_original',
-        title:'Introduction (original proto text)',
-        text:`We’ve got radio, but not happiness … “Everything is amazing right now, and nobody’s happy.” The changes taking place today are bound to the Internet. The abundance of technological novelties enthralls and distracts people from more fundamental concerns: what is happening right now to individual and society? Technological changes are easy to describe; human nature adapts slowly. Tradition sits at the center of the humanities; innovation anchors the technocratic approach. Technocrats push forward; the humanities absorb shocks into habit. That balance worked when eras lasted for generations. Now eras compress within a single lifetime: agrarian → industrial → post‑industrial → networked. Temporal stress appears when habit can’t keep up with innovation: a widening gap. Present shock replaces future shock. Defensive regression, cultural insularity, and compensatory extremism rise as a reaction to acceleration. Meanwhile, emancipation of authorship—billions of publicators—rewires social hierarchy around response and sharing. Viral editing replaces centralized gatekeeping; content seeks its own readers; resonance outranks rank.`
+          },
+          {
+            id: 'intro_original',
+            title: 'Introduction (original proto text)',
+            text: `We’ve got radio, but not happiness … “Everything is amazing right now, and nobody’s happy.” The changes taking place today are bound to the Internet. The abundance of technological novelties enthralls and distracts people from more fundamental concerns: what is happening right now to individual and society? Technological changes are easy to describe; human nature adapts slowly. Tradition sits at the center of the humanities; innovation anchors the technocratic approach. Technocrats push forward; the humanities absorb shocks into habit. That balance worked when eras lasted for generations. Now eras compress within a single lifetime: agrarian → industrial → post‑industrial → networked. Temporal stress appears when habit can’t keep up with innovation: a widening gap. Present shock replaces future shock. Defensive regression, cultural insularity, and compensatory extremism rise as a reaction to acceleration. Meanwhile, emancipation of authorship—billions of publicators—rewires social hierarchy around response and sharing. Viral editing replaces centralized gatekeeping; content seeks its own readers; resonance outranks rank.`
+          }
+        ],
+        quotes: [
+          { year: 1935, who: "Ilya Ilf (satirist)", text: "We’ve got radio already, but we’re still waiting for happiness.", cite: 1 },
+          { year: 1970, who: "Alvin Toffler", text: "Future Shock", cite: 3 },
+          { year: 2011, who: "Louis C.K.", text: "Everything is amazing right now, and nobody’s happy.", cite: 2 },
+          { year: 2013, who: "Douglas Rushkoff", text: "Present Shock: When Everything Happens Now", cite: 4 },
+          { year: 2011, who: "Katerina Murashova", text: "Teenagers struggled to remain offline for eight hours; isolation produced acute discomfort.", cite: 9 },
+          { year: 2012, who: "Paul Miller", text: "The internet is where people are.", cite: 12 }
+        ],
+        sources: {
+          1: "Ilya Ilf, c.1930s observation on technical progress and happiness.",
+          2: "Louis C.K., Conan O’Brien Show (c. 2011).",
+          3: "Alvin Toffler, Future Shock (1970).",
+          4: "Douglas Rushkoff, Present Shock: When Everything Happens Now (2013).",
+          5: "Sergei Kapitsa, remarks on ‘software’ vs ‘hardware’ of civilization.",
+          9: "Katerina Murashova, 2011 experiment on teen isolation.",
+          12: "Paul Miller, I’m still here: back online after a year without the internet (2013)."
+        }
+      };
+
+      // Technocrat vs Humanities keyword lists for highlighting
+      const lens = {
+        tech: ["innovation", "accelerat", "startup", "monet", "platform", "algorithm", "scale", "optimiz", "efficien", "billion", "device", "network", "interface", "3D", "manipulat", "remote", "keyboard", "mouse", "touchpad", "present shock", "future shock"],
+        hum: ["tradition", "ritual", "habit", "cohesion", "human nature", "culture", "values", "xenophobia", "barbarism", "extremism", "humanities", "past", "sense‑making", "meaning", "social", "response", "recognition", "authorship", "publicators"]
+      };
+
+      // Concept web seed terms and links
+      const conceptGraph = {
+        nodes: [
+          { id: "temporal_stress", label: "Temporal Stress" },
+          { id: "pivotal_generation", label: "Pivotal Generation" },
+          { id: "future_vs_present_shock", label: "Future → Present Shock" },
+          { id: "emancipation_authorship", label: "Emancipation of Authorship" },
+          { id: "viral_editor", label: "Viral Editor" },
+          { id: "cohesion", label: "Social Cohesion" },
+          { id: "reactionism", label: "Reactionism/Regression" },
+        ],
+        edges: [
+          ["pivotal_generation", "temporal_stress"],
+          ["temporal_stress", "reactionism"],
+          ["emancipation_authorship", "viral_editor"],
+          ["viral_editor", "cohesion"],
+          ["future_vs_present_shock", "temporal_stress"],
+          ["emancipation_authorship", "cohesion"],
+        ],
+        notes: {
+          temporal_stress: "When era length < generation length, habit can’t catch up with innovation.",
+          pivotal_generation: "First cohorts to live across multiple eras within one lifetime.",
+          future_vs_present_shock: "Rushkoff: everything happens now — compression of time.",
+          emancipation_authorship: "From ~300M lifetime authors → billions of ‘publicators’.",
+          viral_editor: "Crowd response as a distributed editing mechanism; content routes itself.",
+          cohesion: "Shared habits/rituals that metabolize novelty into social stability.",
+          reactionism: "Defensive regression when stress is high: insularity, extremism."
+        }
+      };
+
+      /*********************
+       * STATE (from interactive-mir-00.html)
+       *********************/
+      const state = {
+        activeTab: 0,
+        techAccel: 1.6,    // slider 0.5..3
+        adaptSpeed: 0.9,   // slider 0.3..2
+        eraSet: [ // year spans (rough heuristic for demo)
+          { name: "Agrarian", start: 1880, end: 1945 },
+          { name: "Industrial", start: 1900, end: 1970 },
+          { name: "Post‑Industrial", start: 1970, end: 2005 },
+          { name: "Networked", start: 2005, end: 2025 }
+        ],
+        generationYears: 78,
+        lens: { tech: true, hum: true },
+        textIdx: 0,
+      };
+
+      /*********************
+       * UTIL (from interactive-mir-00.html)
+       *********************/
+      const $ = (sel, el = document) => el.querySelector(sel);
+      const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
+      function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+      function lerp(a, b, t) { return a + (b - a) * t }
+      function map(v, inMin, inMax, outMin, outMax) { const t = (v - inMin) / (inMax - inMin); return outMin + (outMax - outMin) * t }
+      function saveBlob(obj, name) { const data = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2); const blob = new Blob([data], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 5000) }
+      function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+      // Reference the prototype's root element
+      const appRoot = $('#app-prototype');
+
+      /*********************
+       * TABS + LAYOUT (from interactive-mir-00.html)
+       *********************/
+      const features = [
+        { id: 'gap', title: '1) Happiness Gap', build: buildGap },
+        { id: 'overlap', title: '2) Era ↔ Generation', build: buildOverlap },
+        { id: 'lenses', title: '3) Dual‑Lens Text', build: buildLenses },
+        { id: 'stress', title: '4) Stress Simulator', build: buildStress },
+        { id: 'concept', title: '5) Concept Web', build: buildConceptWeb },
+        { id: 'model', title: '6) Model Builder', build: buildModelBuilder },
+        { id: 'synth', title: 'Synthesis', build: buildSynthesis },
+      ];
+
+      function renderTabs() {
+        const t = $('#tabs', appRoot);
+        t.innerHTML = '';
+        features.forEach((f, i) => {
+          const b = document.createElement('button');
+          b.textContent = f.title; b.className = i === state.activeTab ? 'active' : '';
+          b.addEventListener('click', () => { state.activeTab = i; renderApp() });
+          t.appendChild(b);
+        })
       }
-    ],
-    quotes:[
-      {year:1935, who:"Ilya Ilf (satirist)", text:"We’ve got radio already, but we’re still waiting for happiness.", cite:1},
-      {year:1970, who:"Alvin Toffler", text:"Future Shock", cite:3},
-      {year:2011, who:"Louis C.K.", text:"Everything is amazing right now, and nobody’s happy.", cite:2},
-      {year:2013, who:"Douglas Rushkoff", text:"Present Shock: When Everything Happens Now", cite:4},
-      {year:2011, who:"Katerina Murashova", text:"Teenagers struggled to remain offline for eight hours; isolation produced acute discomfort.", cite:9},
-      {year:2012, who:"Paul Miller", text:"The internet is where people are.", cite:12}
-    ],
-    sources:{
-      1:"Ilya Ilf, c.1930s observation on technical progress and happiness.",
-      2:"Louis C.K., Conan O’Brien Show (c. 2011).",
-      3:"Alvin Toffler, Future Shock (1970).",
-      4:"Douglas Rushkoff, Present Shock: When Everything Happens Now (2013).",
-      5:"Sergei Kapitsa, remarks on ‘software’ vs ‘hardware’ of civilization.",
-      9:"Katerina Murashova, 2011 experiment on teen isolation.",
-      12:"Paul Miller, I’m still here: back online after a year without the internet (2013)."
-    }
-  };
 
-  // Technocrat vs Humanities keyword lists for highlighting
-  const lens = {
-    tech:["innovation","accelerat","startup","monet","platform","algorithm","scale","optimiz","efficien","billion","device","network","interface","3D","manipulat","remote","keyboard","mouse","touchpad","present shock","future shock"],
-    hum:["tradition","ritual","habit","cohesion","human nature","culture","values","xenophobia","barbarism","extremism","humanities","past","sense‑making","meaning","social","response","recognition","authorship","publicators"]
-  };
+      function renderApp() {
+        renderTabs();
+        const left = $('#leftCol', appRoot);
+        const right = $('#rightCol', appRoot);
+        left.innerHTML = ''; right.innerHTML = '';
+        const feature = features[state.activeTab];
+        feature.build(left, right);
+      }
 
-  // Concept web seed terms and links
-  const conceptGraph = {
-    nodes:[
-      {id:"temporal_stress", label:"Temporal Stress"},
-      {id:"pivotal_generation", label:"Pivotal Generation"},
-      {id:"future_vs_present_shock", label:"Future → Present Shock"},
-      {id:"emancipation_authorship", label:"Emancipation of Authorship"},
-      {id:"viral_editor", label:"Viral Editor"},
-      {id:"cohesion", label:"Social Cohesion"},
-      {id:"reactionism", label:"Reactionism/Regression"},
-    ],
-    edges:[
-      ["pivotal_generation","temporal_stress"],
-      ["temporal_stress","reactionism"],
-      ["emancipation_authorship","viral_editor"],
-      ["viral_editor","cohesion"],
-      ["future_vs_present_shock","temporal_stress"],
-      ["emancipation_authorship","cohesion"],
-    ],
-    notes:{
-      temporal_stress:"When era length < generation length, habit can’t catch up with innovation.",
-      pivotal_generation:"First cohorts to live across multiple eras within one lifetime.",
-      future_vs_present_shock:"Rushkoff: everything happens now — compression of time.",
-      emancipation_authorship:"From ~300M lifetime authors → billions of ‘publicators’.",
-      viral_editor:"Crowd response as a distributed editing mechanism; content routes itself.",
-      cohesion:"Shared habits/rituals that metabolize novelty into social stability.",
-      reactionism:"Defensive regression when stress is high: insularity, extremism."
-    }
-  };
-
-  /*********************
-   * STATE (from interactive-mir-00.html)
-   *********************/
-  const state = {
-    activeTab: 0,
-    techAccel: 1.6,    // slider 0.5..3
-    adaptSpeed: 0.9,   // slider 0.3..2
-    eraSet: [ // year spans (rough heuristic for demo)
-      {name:"Agrarian", start:1880, end:1945},
-      {name:"Industrial", start:1900, end:1970},
-      {name:"Post‑Industrial", start:1970, end:2005},
-      {name:"Networked", start:2005, end:2025}
-    ],
-    generationYears: 78,
-    lens:{tech:true, hum:true},
-    textIdx: 0,
-  };
-
-  /*********************
-   * UTIL (from interactive-mir-00.html)
-   *********************/
-  const $ = (sel, el=document)=>el.querySelector(sel);
-  const $$ = (sel, el=document)=>Array.from(el.querySelectorAll(sel));
-  function clamp(v,min,max){return Math.max(min, Math.min(max,v));}
-  function lerp(a,b,t){return a+(b-a)*t}
-  function map(v,inMin,inMax,outMin,outMax){const t=(v-inMin)/(inMax-inMin);return outMin+(outMax-outMin)*t}
-  function saveBlob(obj, name){const data = typeof obj === 'string' ? obj : JSON.stringify(obj,null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
-  function cssVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
-
-  // Reference the prototype's root element
-  const appRoot = $('#app-prototype');
-
-  /*********************
-   * TABS + LAYOUT (from interactive-mir-00.html)
-   *********************/
-  const features = [
-    {id:'gap', title:'1) Happiness Gap', build:buildGap},
-    {id:'overlap', title:'2) Era ↔ Generation', build:buildOverlap},
-    {id:'lenses', title:'3) Dual‑Lens Text', build:buildLenses},
-    {id:'stress', title:'4) Stress Simulator', build:buildStress},
-    {id:'concept', title:'5) Concept Web', build:buildConceptWeb},
-    {id:'model', title:'6) Model Builder', build:buildModelBuilder},
-    {id:'synth', title:'Synthesis', build:buildSynthesis},
-  ];
-
-  function renderTabs(){
-    const t = $('#tabs', appRoot);
-    t.innerHTML = '';
-    features.forEach((f,i)=>{
-      const b=document.createElement('button');
-      b.textContent=f.title; b.className = i===state.activeTab? 'active':'';
-      b.addEventListener('click',()=>{state.activeTab=i; renderApp()});
-      t.appendChild(b);
-    })
-  }
-
-  function renderApp(){
-    renderTabs();
-    const left = $('#leftCol', appRoot);
-    const right = $('#rightCol', appRoot);
-    left.innerHTML = ''; right.innerHTML='';
-    const feature = features[state.activeTab];
-    feature.build(left, right);
-  }
-
-  /*********************
-   * 1) HAPPINESS GAP VIEW (from interactive-mir-00.html)
-   *********************/
-  function buildGap(left, right){
-    const panel = document.createElement('div'); panel.className='panel';
-    panel.innerHTML = `
+      /*********************
+       * 1) HAPPINESS GAP VIEW (from interactive-mir-00.html)
+       *********************/
+      function buildGap(left, right) {
+        const panel = document.createElement('div'); panel.className = 'panel';
+        panel.innerHTML = `
       <h1>Technological Progress vs Well‑Being</h1>
       <div class="kicker">A simple index from 1930 → 2025. Gap area = <b>Temporal Stress</b>.</div>
       <div class="controls">
@@ -728,92 +1416,92 @@ The changes taking place today are bound to the Internet. Abundant technological
         <span class="pill">Gap = stress</span>
       </div>
     `;
-    left.appendChild(panel);
+        left.appendChild(panel);
 
-    const canvas = $('#gapCanvas', panel); const ctx = canvas.getContext('2d');
-    function resize(){canvas.width=canvas.clientWidth*devicePixelRatio;canvas.height=canvas.clientHeight*devicePixelRatio}
-    window.addEventListener('resize',()=>{resize(); draw()}); resize();
+        const canvas = $('#gapCanvas', panel); const ctx = canvas.getContext('2d');
+        function resize() { canvas.width = canvas.clientWidth * devicePixelRatio; canvas.height = canvas.clientHeight * devicePixelRatio }
+        window.addEventListener('resize', () => { resize(); draw() }); resize();
 
-    function model(year, start, end){
-      const t = (year-start)/(end-start);
-      // Tech: faster logistic
-      const tech = 1/(1+Math.exp(- (t*10 - 5))) ** (1/state.techAccel);
-      // Wellbeing/adaptation: slower, lagged
-      const lagT = clamp(t - 0.08,0,1);
-      const adapt = (1/(1+Math.exp(- (lagT*8 - 4)))) ** (1/state.adaptSpeed);
-      return {tech, adapt};
-    }
+        function model(year, start, end) {
+          const t = (year - start) / (end - start);
+          // Tech: faster logistic
+          const tech = 1 / (1 + Math.exp(- (t * 10 - 5))) ** (1 / state.techAccel);
+          // Wellbeing/adaptation: slower, lagged
+          const lagT = clamp(t - 0.08, 0, 1);
+          const adapt = (1 / (1 + Math.exp(- (lagT * 8 - 4)))) ** (1 / state.adaptSpeed);
+          return { tech, adapt };
+        }
 
-    function draw(){
-      const start = +$('#gapStart',panel).value, end=+$('#gapEnd',panel).value;
-      const W=canvas.width, H=canvas.height; ctx.clearRect(0,0,W,H);
-      // axes
-      ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--rule').trim()||'#888';
-      ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(50*devicePixelRatio, H-40*devicePixelRatio); ctx.lineTo(W-12*devicePixelRatio, H-40*devicePixelRatio); ctx.moveTo(50*devicePixelRatio,20*devicePixelRatio); ctx.lineTo(50*devicePixelRatio,H-40*devicePixelRatio); ctx.stroke();
-      // labels
-      ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted').trim()||'#666'; ctx.font=`${12*devicePixelRatio}px Inter,ui-sans-serif`; ctx.fillText(start,50*devicePixelRatio, H-20*devicePixelRatio); ctx.fillText(end, W-50*devicePixelRatio, H-20*devicePixelRatio);
+        function draw() {
+          const start = +$('#gapStart', panel).value, end = +$('#gapEnd', panel).value;
+          const W = canvas.width, H = canvas.height; ctx.clearRect(0, 0, W, H);
+          // axes
+          ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--rule').trim() || '#888';
+          ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(50 * devicePixelRatio, H - 40 * devicePixelRatio); ctx.lineTo(W - 12 * devicePixelRatio, H - 40 * devicePixelRatio); ctx.moveTo(50 * devicePixelRatio, 20 * devicePixelRatio); ctx.lineTo(50 * devicePixelRatio, H - 40 * devicePixelRatio); ctx.stroke();
+          // labels
+          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#666'; ctx.font = `${12 * devicePixelRatio}px Inter,ui-sans-serif`; ctx.fillText(start, 50 * devicePixelRatio, H - 20 * devicePixelRatio); ctx.fillText(end, W - 50 * devicePixelRatio, H - 20 * devicePixelRatio);
 
-      // compute points
-      const N = Math.max(100, (end-start));
-      const xs=[], techs=[], adaps=[];
-      for(let i=0;i<=N;i++){
-        const y=start + (end-start)*i/N;
-        const {tech,adapt} = model(y,start,end);
-        xs.push(y); techs.push(tech); adaps.push(adapt);
-      }
-      const xmap = y=> map(y,start,end,60*devicePixelRatio,W-24*devicePixelRatio);
-      const ymap = v=> map(v,0,1,H-48*devicePixelRatio,24*devicePixelRatio);
+          // compute points
+          const N = Math.max(100, (end - start));
+          const xs = [], techs = [], adaps = [];
+          for (let i = 0; i <= N; i++) {
+            const y = start + (end - start) * i / N;
+            const { tech, adapt } = model(y, start, end);
+            xs.push(y); techs.push(tech); adaps.push(adapt);
+          }
+          const xmap = y => map(y, start, end, 60 * devicePixelRatio, W - 24 * devicePixelRatio);
+          const ymap = v => map(v, 0, 1, H - 48 * devicePixelRatio, 24 * devicePixelRatio);
 
-      // fill gap area
-      ctx.beginPath(); ctx.moveTo(xmap(xs[0]), ymap(techs[0]));
-      for(let i=1;i<xs.length;i++) ctx.lineTo(xmap(xs[i]), ymap(techs[i]));
-      for(let i=xs.length-1;i>=0;i--) ctx.lineTo(xmap(xs[i]), ymap(adaps[i]));
-      ctx.closePath(); ctx.fillStyle='rgba(255,122,122,0.18)'; ctx.fill();
+          // fill gap area
+          ctx.beginPath(); ctx.moveTo(xmap(xs[0]), ymap(techs[0]));
+          for (let i = 1; i < xs.length; i++) ctx.lineTo(xmap(xs[i]), ymap(techs[i]));
+          for (let i = xs.length - 1; i >= 0; i--) ctx.lineTo(xmap(xs[i]), ymap(adaps[i]));
+          ctx.closePath(); ctx.fillStyle = 'rgba(255,122,122,0.18)'; ctx.fill();
 
-      // draw lines
-      function line(vals, color){ctx.beginPath(); ctx.lineWidth=2*devicePixelRatio; ctx.strokeStyle=color; ctx.moveTo(xmap(xs[0]), ymap(vals[0])); for(let i=1;i<xs.length;i++) ctx.lineTo(xmap(xs[i]), ymap(vals[i])); ctx.stroke();}
-      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#4aa3ff';
-      const okc = getComputedStyle(document.documentElement).getPropertyValue('--ok').trim()||'#74ffa3';
-      line(techs,accent); line(adaps,okc);
+          // draw lines
+          function line(vals, color) { ctx.beginPath(); ctx.lineWidth = 2 * devicePixelRatio; ctx.strokeStyle = color; ctx.moveTo(xmap(xs[0]), ymap(vals[0])); for (let i = 1; i < xs.length; i++) ctx.lineTo(xmap(xs[i]), ymap(vals[i])); ctx.stroke(); }
+          const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#4aa3ff';
+          const okc = getComputedStyle(document.documentElement).getPropertyValue('--ok').trim() || '#74ffa3';
+          line(techs, accent); line(adaps, okc);
 
-      // scrub year marker & quote
-      const scrub = +$('#gapYear',panel).value; const {tech,adapt}=model(scrub,start,end);
-      const sx=xmap(scrub); ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--hi').trim()||'#d4a000'; ctx.setLineDash([6*devicePixelRatio,6*devicePixelRatio]); ctx.beginPath(); ctx.moveTo(sx,20*devicePixelRatio); ctx.lineTo(sx,H-40*devicePixelRatio); ctx.stroke(); ctx.setLineDash([]);
-      const gap = Math.abs(tech-adapt);
-      const quote = corpus.quotes.reduce((a,b)=> Math.abs(b.year-scrub)<Math.abs(a.year-scrub)? b:a, corpus.quotes[0]);
-      ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--hi').trim()||'#d4a000'; ctx.font=`${13*devicePixelRatio}px Inter`; ctx.fillText(`${scrub}  gap=${gap.toFixed(2)}`, sx+8*devicePixelRatio, 28*devicePixelRatio);
-      ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted').trim()||'#666'; ctx.font=`${12*devicePixelRatio}px Inter`; ctx.fillText(`${quote.who}: “${quote.text.slice(0,40)}…”`, sx+8*devicePixelRatio, 46*devicePixelRatio);
-    }
+          // scrub year marker & quote
+          const scrub = +$('#gapYear', panel).value; const { tech, adapt } = model(scrub, start, end);
+          const sx = xmap(scrub); ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--hi').trim() || '#d4a000'; ctx.setLineDash([6 * devicePixelRatio, 6 * devicePixelRatio]); ctx.beginPath(); ctx.moveTo(sx, 20 * devicePixelRatio); ctx.lineTo(sx, H - 40 * devicePixelRatio); ctx.stroke(); ctx.setLineDash([]);
+          const gap = Math.abs(tech - adapt);
+          const quote = corpus.quotes.reduce((a, b) => Math.abs(b.year - scrub) < Math.abs(a.year - scrub) ? b : a, corpus.quotes[0]);
+          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--hi').trim() || '#d4a000'; ctx.font = `${13 * devicePixelRatio}px Inter`; ctx.fillText(`${scrub}  gap=${gap.toFixed(2)}`, sx + 8 * devicePixelRatio, 28 * devicePixelRatio);
+          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#666'; ctx.font = `${12 * devicePixelRatio}px Inter`; ctx.fillText(`${quote.who}: “${quote.text.slice(0, 40)}…”`, sx + 8 * devicePixelRatio, 46 * devicePixelRatio);
+        }
 
-    $('#gapTech',panel).addEventListener('input',e=>{state.techAccel=+e.target.value; $('#gapTechV',panel).textContent=state.techAccel.toFixed(2); draw()});
-    $('#gapAdapt',panel).addEventListener('input',e=>{state.adaptSpeed=+e.target.value; $('#gapAdaptV',panel).textContent=state.adaptSpeed.toFixed(2); draw()});
-    ['gapStart','gapEnd','gapYear'].forEach(id=> $('#'+id,panel).addEventListener('input', draw));
-    draw();
+        $('#gapTech', panel).addEventListener('input', e => { state.techAccel = +e.target.value; $('#gapTechV', panel).textContent = state.techAccel.toFixed(2); draw() });
+        $('#gapAdapt', panel).addEventListener('input', e => { state.adaptSpeed = +e.target.value; $('#gapAdaptV', panel).textContent = state.adaptSpeed.toFixed(2); draw() });
+        ['gapStart', 'gapEnd', 'gapYear'].forEach(id => $('#' + id, panel).addEventListener('input', draw));
+        draw();
 
-    // Right column context
-    const rightPanel = document.createElement('div'); rightPanel.className='panel';
-    rightPanel.innerHTML = `
+        // Right column context
+        const rightPanel = document.createElement('div'); rightPanel.className = 'panel';
+        rightPanel.innerHTML = `
       <h2>Anchors & Claims</h2>
       <div class="chiprow" id="claims"></div>
       <div class="small" style="margin-top:8px">Adjust sliders to see how the <b>gap</b> widens or narrows. This is a visual grammar for “we’ve got radio, but not happiness.”</div>
     `;
-    right.appendChild(rightPanel);
-    const claims = [
-      'Gap ≈ Temporal Stress',
-      'Tech faster ⇢ Monetization winds',
-      'Adaptation slower ⇢ Habit & Cohesion',
-      'Stress up ⇢ Reaction risk rises',
-    ];
-    const row = $('#claims', rightPanel);
-    claims.forEach(c=>{const n=document.createElement('span');n.className='pill';n.textContent=c;row.appendChild(n)});
-  }
+        right.appendChild(rightPanel);
+        const claims = [
+          'Gap ≈ Temporal Stress',
+          'Tech faster ⇢ Monetization winds',
+          'Adaptation slower ⇢ Habit & Cohesion',
+          'Stress up ⇢ Reaction risk rises',
+        ];
+        const row = $('#claims', rightPanel);
+        claims.forEach(c => { const n = document.createElement('span'); n.className = 'pill'; n.textContent = c; row.appendChild(n) });
+      }
 
-  /*********************
-   * 2) ERA ↔ GENERATION OVERLAP (from interactive-mir-00.html)
-   *********************/
-  function buildOverlap(left, right){
-    const panel = document.createElement('div'); panel.className='panel';
-    panel.innerHTML = `
+      /*********************
+       * 2) ERA ↔ GENERATION OVERLAP (from interactive-mir-00.html)
+       *********************/
+      function buildOverlap(left, right) {
+        const panel = document.createElement('div'); panel.className = 'panel';
+        panel.innerHTML = `
       <h1>Era Duration vs Generation Lifespan</h1>
       <div class="controls">
         <div class="control"><label>Generation (yrs)</label><input type="range" id="genR" min="50" max="95" step="1" value="${state.generationYears}"><span id="genV" class="pill">${state.generationYears} yrs</span></div>
@@ -822,127 +1510,127 @@ The changes taking place today are bound to the Internet. Abundant technological
       <svg id="timeline" viewBox="0 0 800 280" preserveAspectRatio="none"></svg>
       <div class="small">When an era’s duration < generation lifespan, the indicator flashes: potential <b>temporal stress</b>.</div>
     `;
-    left.appendChild(panel);
-    const svg = $('#timeline', panel);
+        left.appendChild(panel);
+        const svg = $('#timeline', panel);
 
-    function render(){
-      svg.innerHTML='';
-      const W=800, H=280; const pad=60; const start = Math.min(...state.eraSet.map(e=>e.start)); const end=Math.max(...state.eraSet.map(e=>e.end));
-      const x = y=> map(y,start,end,pad,W-20);
-      // axes
-      svg.insertAdjacentHTML('beforeend', `<line x1="${pad}" y1="40" x2="${W-20}" y2="40" stroke="#243044"/><line x1="${pad}" y1="${H-40}" x2="${W-20}" y2="${H-40}" stroke="#243044"/>`);
-      svg.insertAdjacentHTML('beforeend', `<text x="${pad}" y="30" fill="#a9a9a9" font-size="12">${start}</text><text x="${W-40}" y="30" fill="#a9a9a9" font-size="12">${end}</text>`);
-      // eras
-      state.eraSet.forEach((e,i)=>{
-        const y = 70 + i*36; const w = Math.max(6, x(e.end)-x(e.start));
-        const stress = ((e.end-e.start) < state.generationYears);
-        const stroke = stress ? cssVar('--warn') : cssVar('--accent');
-        const fill = stroke; // use same hue but low opacity
-        svg.insertAdjacentHTML('beforeend', `
+        function render() {
+          svg.innerHTML = '';
+          const W = 800, H = 280; const pad = 60; const start = Math.min(...state.eraSet.map(e => e.start)); const end = Math.max(...state.eraSet.map(e => e.end));
+          const x = y => map(y, start, end, pad, W - 20);
+          // axes
+          svg.insertAdjacentHTML('beforeend', `<line x1="${pad}" y1="40" x2="${W - 20}" y2="40" stroke="#243044"/><line x1="${pad}" y1="${H - 40}" x2="${W - 20}" y2="${H - 40}" stroke="#243044"/>`);
+          svg.insertAdjacentHTML('beforeend', `<text x="${pad}" y="30" fill="#a9a9a9" font-size="12">${start}</text><text x="${W - 40}" y="30" fill="#a9a9a9" font-size="12">${end}</text>`);
+          // eras
+          state.eraSet.forEach((e, i) => {
+            const y = 70 + i * 36; const w = Math.max(6, x(e.end) - x(e.start));
+            const stress = ((e.end - e.start) < state.generationYears);
+            const stroke = stress ? cssVar('--warn') : cssVar('--accent');
+            const fill = stroke; // use same hue but low opacity
+            svg.insertAdjacentHTML('beforeend', `
           <rect x="${x(e.start)}" y="${y}" width="${w}" height="22" fill="${fill}" fill-opacity="0.10" stroke="${stroke}" stroke-width="1.5"/>
-          <text x="${x(e.start)+6}" y="${y+16}" fill="${cssVar('--ink')}" font-size="12">${e.name} (${e.start}–${e.end})</text>
-          ${stress? `<circle cx="${x(e.end)}" cy="${y+11}" r="6" fill="${cssVar('--warn')}"><animate attributeName="opacity" values="1;0.2;1" dur="1.4s" repeatCount="indefinite"/></circle>`:''}
+          <text x="${x(e.start) + 6}" y="${y + 16}" fill="${cssVar('--ink')}" font-size="12">${e.name} (${e.start}–${e.end})</text>
+          ${stress ? `<circle cx="${x(e.end)}" cy="${y + 11}" r="6" fill="${cssVar('--warn')}"><animate attributeName="opacity" values="1;0.2;1" dur="1.4s" repeatCount="indefinite"/></circle>` : ''}
         `);
-      });
-      // generation span overlay
-      const gy = H-80; svg.insertAdjacentHTML('beforeend', `<rect x="${pad}" y="${gy}" width="${W-80}" height="26" fill="${cssVar('--card')}" stroke="#ffd166"/>`);
-      svg.insertAdjacentHTML('beforeend', `<text x="${pad+8}" y="${gy+18}" fill="#ffd166" font-size="12">Generation ≈ ${state.generationYears} years</text>`);
-    }
-    render();
-    $('#genR', panel).addEventListener('input',e=>{$('#genV',panel).textContent = (state.generationYears=+e.target.value)+" yrs"; render()});
-    $('#addEra', panel).addEventListener('click',()=>{
-      const last = state.eraSet[state.eraSet.length-1];
-      state.eraSet.push({name:"New Era", start:last.end, end:last.end+10});
-      render();
-    });
+          });
+          // generation span overlay
+          const gy = H - 80; svg.insertAdjacentHTML('beforeend', `<rect x="${pad}" y="${gy}" width="${W - 80}" height="26" fill="${cssVar('--card')}" stroke="#ffd166"/>`);
+          svg.insertAdjacentHTML('beforeend', `<text x="${pad + 8}" y="${gy + 18}" fill="#ffd166" font-size="12">Generation ≈ ${state.generationYears} years</text>`);
+        }
+        render();
+        $('#genR', panel).addEventListener('input', e => { $('#genV', panel).textContent = (state.generationYears = +e.target.value) + " yrs"; render() });
+        $('#addEra', panel).addEventListener('click', () => {
+          const last = state.eraSet[state.eraSet.length - 1];
+          state.eraSet.push({ name: "New Era", start: last.end, end: last.end + 10 });
+          render();
+        });
 
-    // Right column: quick editor
-    const rp = document.createElement('div'); rp.className='panel';
-    rp.innerHTML = `<h2>Edit Eras</h2><div id="eraList" class="rows"></div>`;
-    right.appendChild(rp);
-    const list = $('#eraList', rp);
-    function renderList(){
-      list.innerHTML='';
-      state.eraSet.forEach((e,idx)=>{
-        const row = document.createElement('div'); row.className='row';
-        row.innerHTML = `
-          <span class="pill">#${idx+1}</span>
+        // Right column: quick editor
+        const rp = document.createElement('div'); rp.className = 'panel';
+        rp.innerHTML = `<h2>Edit Eras</h2><div id="eraList" class="rows"></div>`;
+        right.appendChild(rp);
+        const list = $('#eraList', rp);
+        function renderList() {
+          list.innerHTML = '';
+          state.eraSet.forEach((e, idx) => {
+            const row = document.createElement('div'); row.className = 'row';
+            row.innerHTML = `
+          <span class="pill">#${idx + 1}</span>
           <input class="mono" value="${e.name}" style="width:140px;background:var(--chip);border:1px solid var(--rule);color:var(--ink);padding:6px;border-radius:8px"/>
           <input type="number" value="${e.start}" style="width:90px"/>
           <input type="number" value="${e.end}" style="width:90px"/>
           <button class="btn" aria-label="delete">✕</button>
         `;
-        const [nameI,startI,endI,delB] = row.querySelectorAll('input,button');
-        nameI.addEventListener('input',ev=>{e.name=ev.target.value; render()});
-        startI.addEventListener('input',ev=>{e.start=+ev.target.value; render()});
-        endI.addEventListener('input',ev=>{e.end=+ev.target.value; render()});
-        delB.addEventListener('click',()=>{state.eraSet.splice(idx,1); render(); renderList()});
-        list.appendChild(row);
-      })
-    }
-    renderList();
-  }
+            const [nameI, startI, endI, delB] = row.querySelectorAll('input,button');
+            nameI.addEventListener('input', ev => { e.name = ev.target.value; render() });
+            startI.addEventListener('input', ev => { e.start = +ev.target.value; render() });
+            endI.addEventListener('input', ev => { e.end = +ev.target.value; render() });
+            delB.addEventListener('click', () => { state.eraSet.splice(idx, 1); render(); renderList() });
+            list.appendChild(row);
+          })
+        }
+        renderList();
+      }
 
-  /*********************
-   * 3) DUAL‑LENS TEXT VIEW (from interactive-mir-00.html)
-   *********************/
-  function buildLenses(left, right){
-    const panel = document.createElement('div'); panel.className='panel';
-    panel.innerHTML = `
+      /*********************
+       * 3) DUAL‑LENS TEXT VIEW (from interactive-mir-00.html)
+       *********************/
+      function buildLenses(left, right) {
+        const panel = document.createElement('div'); panel.className = 'panel';
+        panel.innerHTML = `
       <h1>Dual‑Lens Reading: Technocrat ↔ Humanities</h1>
       <div class="controls">
         <div class="control"><label for="textSel">Text</label>
           <select id="textSel" style="background:var(--chip);color:var(--ink);border:1px solid var(--rule);padding:6px;border-radius:8px"></select>
         </div>
-        <div class="control"><input type="checkbox" id="lensTech" ${state.lens.tech?'checked':''}/> <label>Technocrat terms</label></div>
-        <div class="control"><input type="checkbox" id="lensHum" ${state.lens.hum?'checked':''}/> <label>Humanities terms</label></div>
+        <div class="control"><input type="checkbox" id="lensTech" ${state.lens.tech ? 'checked' : ''}/> <label>Technocrat terms</label></div>
+        <div class="control"><input type="checkbox" id="lensHum" ${state.lens.hum ? 'checked' : ''}/> <label>Humanities terms</label></div>
         <div class="control"><button class="btn" id="clearHL">Clear</button></div>
       </div>
       <div class="textzone" id="lensText"></div>
       <div class="legend"><span class="pill"><i class="dot" style="display:inline-block;width:10px;height:10px;background:#7ad7ff;border-radius:999px"></i> Tech lens</span><span class="pill"><i class="dot" style="display:inline-block;width:10px;height:10px;background:#ffd166;border-radius:999px"></i> Humanities lens</span></div>
     `;
-    left.appendChild(panel);
+        left.appendChild(panel);
 
-    const tz = $('#lensText', panel);
-    function currentText(){
-      const i = Math.max(0, Math.min(state.textIdx, (corpus.texts?.length||1)-1));
-      return (corpus.texts && corpus.texts[i] && corpus.texts[i].text) || '';
-    }
-    function highlight(txt){
-      let out = txt;
-      if(state.lens.tech){ lens.tech.forEach(k=>{const r=new RegExp("(\\b"+k+"[\\w-]*\\b)", 'ig'); out=out.replace(r,'<mark class="tech">$1</mark>')}); }
-      if(state.lens.hum){ lens.hum.forEach(k=>{const r=new RegExp("(\\b"+k+"[\\w-]*\\b)", 'ig'); out=out.replace(r,'<mark class="hum">$1</mark>')}); }
-      return out;
-    }
-    // Populate selector
-    const sel = $('#textSel', panel);
-    sel.innerHTML = (corpus.texts||[]).map((t,i)=>`<option value="${i}" ${i===state.textIdx?'selected':''}>${t.title||t.id||('Text '+(i+1))}</option>`).join('');
-    function renderText(){ tz.innerHTML = highlight(currentText()); }
-    renderText();
-    $('#lensTech',panel).addEventListener('change',e=>{state.lens.tech=e.target.checked; renderText()});
-    $('#lensHum',panel).addEventListener('change',e=>{state.lens.hum=e.target.checked; renderText()});
-    sel.addEventListener('change',e=>{state.textIdx=+e.target.value; renderText()});
-    $('#clearHL',panel).addEventListener('click',()=>{state.lens.tech=false;state.lens.hum=false;$('#lensTech',panel).checked=false;$('#lensHum',panel).checked=false; tz.innerHTML=currentText()});
+        const tz = $('#lensText', panel);
+        function currentText() {
+          const i = Math.max(0, Math.min(state.textIdx, (corpus.texts?.length || 1) - 1));
+          return (corpus.texts && corpus.texts[i] && corpus.texts[i].text) || '';
+        }
+        function highlight(txt) {
+          let out = txt;
+          if (state.lens.tech) { lens.tech.forEach(k => { const r = new RegExp("(\\b" + k + "[\\w-]*\\b)", 'ig'); out = out.replace(r, '<mark class="tech">$1</mark>') }); }
+          if (state.lens.hum) { lens.hum.forEach(k => { const r = new RegExp("(\\b" + k + "[\\w-]*\\b)", 'ig'); out = out.replace(r, '<mark class="hum">$1</mark>') }); }
+          return out;
+        }
+        // Populate selector
+        const sel = $('#textSel', panel);
+        sel.innerHTML = (corpus.texts || []).map((t, i) => `<option value="${i}" ${i === state.textIdx ? 'selected' : ''}>${t.title || t.id || ('Text ' + (i + 1))}</option>`).join('');
+        function renderText() { tz.innerHTML = highlight(currentText()); }
+        renderText();
+        $('#lensTech', panel).addEventListener('change', e => { state.lens.tech = e.target.checked; renderText() });
+        $('#lensHum', panel).addEventListener('change', e => { state.lens.hum = e.target.checked; renderText() });
+        sel.addEventListener('change', e => { state.textIdx = +e.target.value; renderText() });
+        $('#clearHL', panel).addEventListener('click', () => { state.lens.tech = false; state.lens.hum = false; $('#lensTech', panel).checked = false; $('#lensHum', panel).checked = false; tz.innerHTML = currentText() });
 
-    // Right: small key quotes
-    const qp = document.createElement('div'); qp.className='panel';
-    qp.innerHTML = `<h2>Quotes as Timeline Anchors</h2><div class="rows" id="qrows"></div>`;
-    right.appendChild(qp);
-    const qrows = $('#qrows', qp);
-    corpus.quotes.forEach(q=>{
-      const n=document.createElement('div'); n.className='pill';
-      const cite = q.cite ? `<sup title="${(corpus.sources&&corpus.sources[q.cite])||''}">[${q.cite}]</sup>` : '';
-      n.innerHTML = `${q.year} — ${q.who}: “${q.text}” ${cite}`;
-      qrows.appendChild(n);
-    })
-  }
+        // Right: small key quotes
+        const qp = document.createElement('div'); qp.className = 'panel';
+        qp.innerHTML = `<h2>Quotes as Timeline Anchors</h2><div class="rows" id="qrows"></div>`;
+        right.appendChild(qp);
+        const qrows = $('#qrows', qp);
+        corpus.quotes.forEach(q => {
+          const n = document.createElement('div'); n.className = 'pill';
+          const cite = q.cite ? `<sup title="${(corpus.sources && corpus.sources[q.cite]) || ''}">[${q.cite}]</sup>` : '';
+          n.innerHTML = `${q.year} — ${q.who}: “${q.text}” ${cite}`;
+          qrows.appendChild(n);
+        })
+      }
 
-  /*********************
-   * 4) STRESS SIMULATOR (sliders → gauges) (from interactive-mir-00.html)
-   *********************/
-  function buildStress(left, right){
-    const panel = document.createElement('div'); panel.className='panel';
-    panel.innerHTML = `
+      /*********************
+       * 4) STRESS SIMULATOR (sliders → gauges) (from interactive-mir-00.html)
+       *********************/
+      function buildStress(left, right) {
+        const panel = document.createElement('div'); panel.className = 'panel';
+        panel.innerHTML = `
       <h1>Temporal Stress Simulator</h1>
       <div class="controls">
         <div class="control"><label>Tech acceleration</label><input id="sTech" type="range" min="0.5" max="3" step="0.05" value="${state.techAccel}"><span class="pill" id="sTechV">${state.techAccel.toFixed(2)}</span></div>
@@ -954,67 +1642,67 @@ The changes taking place today are bound to the Internet. Abundant technological
         <div class="gauge"><div class="bar" id="gRegr"></div><div class="label">Regression/Aggression risk: <span class="status" id="gRegrL"></span></div></div>
       </div>
     `;
-    left.appendChild(panel);
+        left.appendChild(panel);
 
-    function recompute(){
-      const te = state.techAccel, ad = state.adaptSpeed; // simple synthetic model
-      const stress = clamp(map(te/ad, 0.25, 4, 0, 1),0,1);
-      const cohesion = clamp(1 - Math.pow(stress,0.8),0,1);
-      const regr = clamp(Math.pow(stress,1.2),0,1);
-      setBar('#gStress', stress, '#ff7a7a'); $('#gStressL', panel).textContent=(stress*100|0)+'%';
-      setBar('#gCoh', cohesion, '#95f29b'); $('#gCohL', panel).textContent=(cohesion*100|0)+'%';
-      setBar('#gRegr', regr, '#ffd166'); $('#gRegrL', panel).textContent=(regr*100|0)+'%';
-    }
-    function setBar(sel, frac, color){const el=$(sel,panel); el.style.width = (frac*100)+'%'; el.style.background = `linear-gradient(90deg, ${color}, #0fd)`}
-    $('#sTech',panel).addEventListener('input',e=>{state.techAccel=+e.target.value;$('#sTechV',panel).textContent=state.techAccel.toFixed(2); recompute()});
-    $('#sAdapt',panel).addEventListener('input',e=>{state.adaptSpeed=+e.target.value;$('#sAdaptV',panel).textContent=state.adaptSpeed.toFixed(2); recompute()});
-    recompute();
+        function recompute() {
+          const te = state.techAccel, ad = state.adaptSpeed; // simple synthetic model
+          const stress = clamp(map(te / ad, 0.25, 4, 0, 1), 0, 1);
+          const cohesion = clamp(1 - Math.pow(stress, 0.8), 0, 1);
+          const regr = clamp(Math.pow(stress, 1.2), 0, 1);
+          setBar('#gStress', stress, '#ff7a7a'); $('#gStressL', panel).textContent = (stress * 100 | 0) + '%';
+          setBar('#gCoh', cohesion, '#95f29b'); $('#gCohL', panel).textContent = (cohesion * 100 | 0) + '%';
+          setBar('#gRegr', regr, '#ffd166'); $('#gRegrL', panel).textContent = (regr * 100 | 0) + '%';
+        }
+        function setBar(sel, frac, color) { const el = $(sel, panel); el.style.width = (frac * 100) + '%'; el.style.background = `linear-gradient(90deg, ${color}, #0fd)` }
+        $('#sTech', panel).addEventListener('input', e => { state.techAccel = +e.target.value; $('#sTechV', panel).textContent = state.techAccel.toFixed(2); recompute() });
+        $('#sAdapt', panel).addEventListener('input', e => { state.adaptSpeed = +e.target.value; $('#sAdaptV', panel).textContent = state.adaptSpeed.toFixed(2); recompute() });
+        recompute();
 
-    const rp = document.createElement('div'); rp.className='panel'; right.appendChild(rp);
-    rp.innerHTML = `<h2>Reading</h2><div class="small">“Technocrats celebrate compressed time as faster monetization; humanities metabolize novelty into habit. When era < generation, stress rises.”</div>`;
-  }
+        const rp = document.createElement('div'); rp.className = 'panel'; right.appendChild(rp);
+        rp.innerHTML = `<h2>Reading</h2><div class="small">“Technocrats celebrate compressed time as faster monetization; humanities metabolize novelty into habit. When era < generation, stress rises.”</div>`;
+      }
 
-  /*********************
-   * 5) CONCEPT WEB (mini graph) (from interactive-mir-00.html)
-   *********************/
-  function buildConceptWeb(left, right){
-    const panel = document.createElement('div'); panel.className='panel';
-    panel.innerHTML = `<h1>Concept Web</h1><svg id="cw" viewBox="0 0 600 320"></svg>`;
-    left.appendChild(panel);
-    const svg = $('#cw', panel);
+      /*********************
+       * 5) CONCEPT WEB (mini graph) (from interactive-mir-00.html)
+       *********************/
+      function buildConceptWeb(left, right) {
+        const panel = document.createElement('div'); panel.className = 'panel';
+        panel.innerHTML = `<h1>Concept Web</h1><svg id="cw" viewBox="0 0 600 320"></svg>`;
+        left.appendChild(panel);
+        const svg = $('#cw', panel);
 
-    // Simple circular layout
-    const cx=300, cy=160, R=115; const positions={};
-    conceptGraph.nodes.forEach((n,i)=>{const a = (i/conceptGraph.nodes.length)*Math.PI*2; positions[n.id]={x:cx+R*Math.cos(a), y:cy+R*Math.sin(a)}});
-    // edges
-    conceptGraph.edges.forEach(([a,b])=>{
-      const A=positions[a], B=positions[b];
-      svg.insertAdjacentHTML('beforeend', `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${cssVar('--rule')}" stroke-opacity="0.7" stroke-width="1.5"/>`);
-    });
-    // nodes
-    conceptGraph.nodes.forEach(n=>{
-      const p=positions[n.id];
-      svg.insertAdjacentHTML('beforeend', `<g class="cnode" data-id="${n.id}" style="cursor:pointer">
+        // Simple circular layout
+        const cx = 300, cy = 160, R = 115; const positions = {};
+        conceptGraph.nodes.forEach((n, i) => { const a = (i / conceptGraph.nodes.length) * Math.PI * 2; positions[n.id] = { x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) } });
+        // edges
+        conceptGraph.edges.forEach(([a, b]) => {
+          const A = positions[a], B = positions[b];
+          svg.insertAdjacentHTML('beforeend', `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${cssVar('--rule')}" stroke-opacity="0.7" stroke-width="1.5"/>`);
+        });
+        // nodes
+        conceptGraph.nodes.forEach(n => {
+          const p = positions[n.id];
+          svg.insertAdjacentHTML('beforeend', `<g class="cnode" data-id="${n.id}" style="cursor:pointer">
         <circle cx="${p.x}" cy="${p.y}" r="18" fill="${cssVar('--card')}" stroke="${cssVar('--accent')}"/>
-        <text x="${p.x}" y="${p.y+4}" fill="${cssVar('--ink')}" font-size="9" text-anchor="middle">${n.label}</text>
+        <text x="${p.x}" y="${p.y + 4}" fill="${cssVar('--ink')}" font-size="9" text-anchor="middle">${n.label}</text>
       </g>`)
-    });
-    svg.addEventListener('click',e=>{
-      const g = e.target.closest('.cnode'); if(!g) return; const id=g.dataset.id; showNote(id);
-      $$('.cnode',svg).forEach(n=>n.querySelector('circle').setAttribute('stroke',cssVar('--accent')));
-      g.querySelector('circle').setAttribute('stroke',cssVar('--hi'));
-    });
+        });
+        svg.addEventListener('click', e => {
+          const g = e.target.closest('.cnode'); if (!g) return; const id = g.dataset.id; showNote(id);
+          $$('.cnode', svg).forEach(n => n.querySelector('circle').setAttribute('stroke', cssVar('--accent')));
+          g.querySelector('circle').setAttribute('stroke', cssVar('--hi'));
+        });
 
-    const rp = document.createElement('div'); rp.className='panel'; rp.innerHTML = `<h2>Definition</h2><div id="def" class="small">Tap a node to see its role.</div>`; right.appendChild(rp);
-    function showNote(id){ $('#def',rp).innerHTML = `<b>${conceptGraph.nodes.find(n=>n.id===id).label}:</b> ${conceptGraph.notes[id]||''}` }
-  }
+        const rp = document.createElement('div'); rp.className = 'panel'; rp.innerHTML = `<h2>Definition</h2><div id="def" class="small">Tap a node to see its role.</div>`; right.appendChild(rp);
+        function showNote(id) { $('#def', rp).innerHTML = `<b>${conceptGraph.nodes.find(n => n.id === id).label}:</b> ${conceptGraph.notes[id] || ''}` }
+      }
 
-  /*********************
-   * 6) MODEL BUILDER (tiny sim + chart) (from interactive-mir-00.html)
-   *********************/
-  function buildModelBuilder(left, right){
-    const panel = document.createElement('div'); panel.className='panel';
-    panel.innerHTML = `
+      /*********************
+       * 6) MODEL BUILDER (tiny sim + chart) (from interactive-mir-00.html)
+       *********************/
+      function buildModelBuilder(left, right) {
+        const panel = document.createElement('div'); panel.className = 'panel';
+        panel.innerHTML = `
       <h1>Societal Adaptation Model Builder</h1>
       <div class="controls">
         <div class="control"><label>Years</label><input id="mbYears" type="number" value="80" min="20" max="200" style="width:80px"></div>
@@ -1025,73 +1713,73 @@ The changes taking place today are bound to the Internet. Abundant technological
       </div>
       <canvas id="mbCanvas"></canvas>
     `;
-    left.appendChild(panel);
-    const canvas = $('#mbCanvas', panel); const ctx = canvas.getContext('2d');
-    function resize(){canvas.width=canvas.clientWidth*devicePixelRatio;canvas.height=canvas.clientHeight*devicePixelRatio}
-    window.addEventListener('resize',()=>{resize(); run()}); resize();
+        left.appendChild(panel);
+        const canvas = $('#mbCanvas', panel); const ctx = canvas.getContext('2d');
+        function resize() { canvas.width = canvas.clientWidth * devicePixelRatio; canvas.height = canvas.clientHeight * devicePixelRatio }
+        window.addEventListener('resize', () => { resize(); run() }); resize();
 
-    function simulate(Y, eraLen, tech, adapt){
-      const data=[]; let habit=0.1, innovation=0.1; let tSinceEra=0;
-      for(let y=0;y<Y;y++){
-        // every eraLen years, reset the target upward (new paradigm)
-        tSinceEra++; if(tSinceEra>eraLen){ tSinceEra=1; innovation *= 0.85; } // slight reset shock
-        // innovation growth (tech) vs habit growth (adapt)
-        const target = Math.min(1, innovation + (tech*0.012));
-        innovation = clamp(target, 0, 1);
-        habit = clamp(habit + (adapt*0.01)*(innovation - habit), 0, 1);
-        const stress = Math.abs(innovation - habit);
-        data.push({year:y, innovation, habit, stress});
-      }
-      return data;
-    }
+        function simulate(Y, eraLen, tech, adapt) {
+          const data = []; let habit = 0.1, innovation = 0.1; let tSinceEra = 0;
+          for (let y = 0; y < Y; y++) {
+            // every eraLen years, reset the target upward (new paradigm)
+            tSinceEra++; if (tSinceEra > eraLen) { tSinceEra = 1; innovation *= 0.85; } // slight reset shock
+            // innovation growth (tech) vs habit growth (adapt)
+            const target = Math.min(1, innovation + (tech * 0.012));
+            innovation = clamp(target, 0, 1);
+            habit = clamp(habit + (adapt * 0.01) * (innovation - habit), 0, 1);
+            const stress = Math.abs(innovation - habit);
+            data.push({ year: y, innovation, habit, stress });
+          }
+          return data;
+        }
 
-    function run(){
-      const Y=+$('#mbYears',panel).value; const eraLen=+$('#mbEra',panel).value; const tech=+$('#mbTech',panel).value; const adapt=+$('#mbAdapt',panel).value;
-      $('#mbEraV',panel).textContent = eraLen;
-      const d=simulate(Y,eraLen,tech,adapt);
-      draw(d);
-    }
-    function draw(d){
-      const W=canvas.width, H=canvas.height; ctx.clearRect(0,0,W,H);
-      const pad=50; const x=i=> map(i,0,d.length-1,pad,W-20); const y=v=> map(v,0,1,H-40,24);
-      // axes
-      ctx.strokeStyle='#243044'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(pad*devicePixelRatio, H-40*devicePixelRatio); ctx.lineTo(W-20*devicePixelRatio, H-40*devicePixelRatio); ctx.moveTo(pad*devicePixelRatio,20*devicePixelRatio); ctx.lineTo(pad*devicePixelRatio,H-40*devicePixelRatio); ctx.stroke();
-      // stress fill
-      ctx.beginPath(); ctx.moveTo(x(0), y(d[0].innovation)); for(let i=1;i<d.length;i++) ctx.lineTo(x(i), y(d[i].innovation)); for(let i=d.length-1;i>=0;i--) ctx.lineTo(x(i), y(d[i].habit)); ctx.closePath(); ctx.fillStyle='rgba(255,122,122,0.18)'; ctx.fill();
-      // lines
-      function line(vals, color){ctx.beginPath(); ctx.lineWidth=2*devicePixelRatio; ctx.strokeStyle=color; ctx.moveTo(x(0), y(vals[0])); for(let i=1;i<vals.length;i++) ctx.lineTo(x(i), y(vals[i])); ctx.stroke();}
-      line(d.map(p=>p.innovation),'#7ad7ff'); line(d.map(p=>p.habit),'#95f29b');
-      // labels
-      ctx.fillStyle='#a9a9a9'; ctx.fillText('0', pad*devicePixelRatio-10, H-22*devicePixelRatio); ctx.fillText(String(d.length-1), W-36*devicePixelRatio, H-22*devicePixelRatio);
-    }
-    $('#mbRun',panel).addEventListener('click', run);
-    ['mbYears','mbEra','mbTech','mbAdapt'].forEach(id=> $('#'+id,panel).addEventListener('input', run));
-    run();
+        function run() {
+          const Y = +$('#mbYears', panel).value; const eraLen = +$('#mbEra', panel).value; const tech = +$('#mbTech', panel).value; const adapt = +$('#mbAdapt', panel).value;
+          $('#mbEraV', panel).textContent = eraLen;
+          const d = simulate(Y, eraLen, tech, adapt);
+          draw(d);
+        }
+        function draw(d) {
+          const W = canvas.width, H = canvas.height; ctx.clearRect(0, 0, W, H);
+          const pad = 50; const x = i => map(i, 0, d.length - 1, pad, W - 20); const y = v => map(v, 0, 1, H - 40, 24);
+          // axes
+          ctx.strokeStyle = '#243044'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pad * devicePixelRatio, H - 40 * devicePixelRatio); ctx.lineTo(W - 20 * devicePixelRatio, H - 40 * devicePixelRatio); ctx.moveTo(pad * devicePixelRatio, 20 * devicePixelRatio); ctx.lineTo(pad * devicePixelRatio, H - 40 * devicePixelRatio); ctx.stroke();
+          // stress fill
+          ctx.beginPath(); ctx.moveTo(x(0), y(d[0].innovation)); for (let i = 1; i < d.length; i++) ctx.lineTo(x(i), y(d[i].innovation)); for (let i = d.length - 1; i >= 0; i--) ctx.lineTo(x(i), y(d[i].habit)); ctx.closePath(); ctx.fillStyle = 'rgba(255,122,122,0.18)'; ctx.fill();
+          // lines
+          function line(vals, color) { ctx.beginPath(); ctx.lineWidth = 2 * devicePixelRatio; ctx.strokeStyle = color; ctx.moveTo(x(0), y(vals[0])); for (let i = 1; i < vals.length; i++) ctx.lineTo(x(i), y(vals[i])); ctx.stroke(); }
+          line(d.map(p => p.innovation), '#7ad7ff'); line(d.map(p => p.habit), '#95f29b');
+          // labels
+          ctx.fillStyle = '#a9a9a9'; ctx.fillText('0', pad * devicePixelRatio - 10, H - 22 * devicePixelRatio); ctx.fillText(String(d.length - 1), W - 36 * devicePixelRatio, H - 22 * devicePixelRatio);
+        }
+        $('#mbRun', panel).addEventListener('click', run);
+        ['mbYears', 'mbEra', 'mbTech', 'mbAdapt'].forEach(id => $('#' + id, panel).addEventListener('input', run));
+        run();
 
-    const rp = document.createElement('div'); rp.className='panel'; right.appendChild(rp);
-    rp.innerHTML = `<h2>Export/Share Model</h2>
+        const rp = document.createElement('div'); rp.className = 'panel'; right.appendChild(rp);
+        rp.innerHTML = `<h2>Export/Share Model</h2>
       <div class="rows">
         <button class="btn" id="mbExport">Export model JSON</button>
         <div class="small">Contains parameters + last run results.</div>
       </div>`;
-    $('#mbExport',rp).addEventListener('click',()=>{
-      const model = {
-        years:+$('#mbYears',panel).value,
-        eraLength:+$('#mbEra',panel).value,
-        tech:+$('#mbTech',panel).value,
-        adapt:+$('#mbAdapt',panel).value,
-        timestamp: new Date().toISOString()
-      };
-      saveBlob(model, 'societal_adaptation_model.json');
-    });
-  }
+        $('#mbExport', rp).addEventListener('click', () => {
+          const model = {
+            years: +$('#mbYears', panel).value,
+            eraLength: +$('#mbEra', panel).value,
+            tech: +$('#mbTech', panel).value,
+            adapt: +$('#mbAdapt', panel).value,
+            timestamp: new Date().toISOString()
+          };
+          saveBlob(model, 'societal_adaptation_model.json');
+        });
+      }
 
-  /*********************
-   * 7) SYNTHESIS (from interactive-mir-00.html)
-   *********************/
-  function buildSynthesis(left, right){
-    const p = document.createElement('div'); p.className='panel';
-    p.innerHTML = `
+      /*********************
+       * 7) SYNTHESIS (from interactive-mir-00.html)
+       *********************/
+      function buildSynthesis(left, right) {
+        const p = document.createElement('div'); p.className = 'panel';
+        p.innerHTML = `
       <h1>Synthesis: From Static Text → Medium</h1>
       <div class="rows">
         <div class="small">This artifact links six complementary views:
@@ -1106,151 +1794,152 @@ The changes taking place today are bound to the Internet. Abundant technological
           The “unthinkable” made graspable here is a <b>state transition</b>: as compression intensifies, the system crosses from adaptation‑dominant to stress‑dominant dynamics, raising regression risk even amid progress. You can <i>see</i> and <i>feel</i> that crossover by dragging the sliders and watching the gap area flare.
         </div>
       </div>`;
-    left.appendChild(p);
+        left.appendChild(p);
 
-    const r = document.createElement('div'); r.className='panel'; r.innerHTML = `<h2>Next Extensions</h2>
+        const r = document.createElement('div'); r.className = 'panel'; r.innerHTML = `<h2>Next Extensions</h2>
       <ul class="small">
         <li>Annotate charts directly with quotes (Ilf, Louis CK) tied to years.</li>
         <li>Persist multiple lens mappings and compare cohorts.</li>
         <li>Add response dynamics (Viral Editor) as feedback onto cohesion.</li>
         <li>Publish saved models as remixable templates.</li>
       </ul>`; right.appendChild(r);
-  }
+      }
 
-  /*********************
-   * EXPORT / IMPORT / RESET (from interactive-mir-00.html)
-   *********************/
-  $('#exportState', appRoot).addEventListener('click',()=>{
-    const payload = {state, eraSet:state.eraSet, timestamp:new Date().toISOString()};
-    saveBlob(payload, 'human_intro_medium_state.json');
-  });
-  $('#importState', appRoot).addEventListener('click',()=> $('#importFile', appRoot).click());
-  $('#importFile', appRoot).addEventListener('change',e=>{
-    const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ const obj=JSON.parse(r.result); Object.assign(state, obj.state||{}); renderApp(); }catch(err){ alert('Bad JSON'); } }; r.readAsText(f);
-  });
-  $('#reset', appRoot).addEventListener('click',()=>{Object.assign(state,{activeTab:0, techAccel:1.6, adaptSpeed:0.9, generationYears:78, lens:{tech:true,hum:true}, textIdx:0}); renderApp();});
+      /*********************
+       * EXPORT / IMPORT / RESET (from interactive-mir-00.html)
+       *********************/
+      $('#exportState', appRoot).addEventListener('click', () => {
+        const payload = { state, eraSet: state.eraSet, timestamp: new Date().toISOString() };
+        saveBlob(payload, 'human_intro_medium_state.json');
+      });
+      $('#importState', appRoot).addEventListener('click', () => $('#importFile', appRoot).click());
+      $('#importFile', appRoot).addEventListener('change', e => {
+        const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { const obj = JSON.parse(r.result); Object.assign(state, obj.state || {}); renderApp(); } catch (err) { alert('Bad JSON'); } }; r.readAsText(f);
+      });
+      $('#reset', appRoot).addEventListener('click', () => { Object.assign(state, { activeTab: 0, techAccel: 1.6, adaptSpeed: 0.9, generationYears: 78, lens: { tech: true, hum: true }, textIdx: 0 }); renderApp(); });
 
-  // Initial render for the interactive app once initialized
-  renderApp();
-  interactiveAppInitialized = true;
-}
+      // Initial render for the interactive app once initialized
+      renderApp();
+      interactiveAppInitialized = true;
+    }
 
 
-// --- Presentation JavaScript (from human-as-media-presentation.html) ---
+    // --- Presentation JavaScript (from human-as-media-presentation.html) ---
 
-let currentSlideIndex = 0; // Keep track of the current slide
+    let currentSlideIndex = 0; // Keep track of the current slide
 
-function showSlide(n){
-  const slides = document.querySelectorAll('.slide');
-  slides.forEach((s,i)=>{
-    s.classList.toggle('active',i===n);
-  });
-  document.getElementById('gridview').style.display='none';
-  currentSlideIndex = n;
+    function showSlide(n) {
+      const slides = document.querySelectorAll('.slide');
+      slides.forEach((s, i) => {
+        s.classList.toggle('active', i === n);
+      });
+      document.getElementById('gridview').style.display = 'none';
+      currentSlideIndex = n;
 
-  // If the interactive slide is active, initialize the app
-  if (slides[n].id === 'slide13' && !interactiveAppInitialized) {
-    initInteractiveApp();
-  }
-}
+      // If the interactive slide is active, initialize the app
+      if (slides[n].id === 'slide13' && !interactiveAppInitialized) {
+        initInteractiveApp();
+      }
+    }
 
-function showGrid(){
-  document.querySelectorAll('.slide').forEach((s)=>s.classList.remove('active'));
-  document.getElementById('gridview').style.display='grid';
-}
+    function showGrid() {
+      document.querySelectorAll('.slide').forEach((s) => s.classList.remove('active'));
+      document.getElementById('gridview').style.display = 'grid';
+    }
 
-function swapTheme(t){
-  const r=document.documentElement;
-  if(t==='sun'){
-    r.style.setProperty('--bg','#0a0b0c');
-    r.style.setProperty('--ink','#fffeee');
-    r.style.setProperty('--muted','#c9c3a8');
-    r.style.setProperty('--hi','#ffc857');
-    r.style.setProperty('--accent','#8bdcff');
-    r.style.setProperty('--card','#111720');
-    r.style.setProperty('--rule','#2b3955');
-    r.style.setProperty('--line','#20293a');
-    r.style.setProperty('--chip','#101724');
-    r.style.setProperty('--shadow','0 10px 28px rgba(0,0,0,.35)');
-    r.style.setProperty('--ok','#95f29b');
-    r.style.setProperty('--warn','#ff7a7a');
-    document.body.dataset.theme = '';
-  }else if(t==='zen'){
-    r.style.setProperty('--bg','#000');
-    r.style.setProperty('--ink','#ffffff');
-    r.style.setProperty('--hi','#FF0000'); /* Rewind Red */
-    r.style.setProperty('--accent','#707070'); /* Nostalgia Gray */
-    r.style.setProperty('--card','#0a0a0a');
-    r.style.setProperty('--rule','#222');
-    r.style.setProperty('--muted','#bdbdbd');
-    r.style.setProperty('--line','#1b1b1b');
-    r.style.setProperty('--chip','#0d0d0d');
-    r.style.setProperty('--shadow','0 10px 28px rgba(0,0,0,.35)');
-    r.style.setProperty('--ok','#95f29b');
-    r.style.setProperty('--warn','#ff7a7a');
-    document.body.dataset.theme = '';
-  }else if(t==='bw'){
-    // Black/White theme aligned to studio dark
-    r.style.setProperty('--bg','#0e1116');
-    r.style.setProperty('--ink','#f4f6f9');
-    r.style.setProperty('--muted','#9aa7bd');
-    r.style.setProperty('--hi','#e8e8e8');
-    r.style.setProperty('--accent','#a7c7ff');
-    r.style.setProperty('--card','#131923');
-    r.style.setProperty('--rule','#20293a');
-    r.style.setProperty('--line','#202636');
-    r.style.setProperty('--chip','#0c101a');
-    r.style.setProperty('--shadow','0 10px 28px rgba(0,0,0,.35)');
-    r.style.setProperty('--ok','#95f29b');
-    r.style.setProperty('--warn','#ff7a7a');
-    document.body.dataset.theme = '';
-  }else if(t==='news'){
-    // Newspaper theme
-    r.style.setProperty('--bg','#f7f4e9');
-    r.style.setProperty('--ink','#1b1b1b');
-    r.style.setProperty('--muted','#5b5b5b');
-    r.style.setProperty('--hi','#222222');
-    r.style.setProperty('--accent','#b55600');
-    r.style.setProperty('--card','#fffdfa');
-    r.style.setProperty('--rule','#e0dbc9');
-    r.style.setProperty('--line','#d9d3bf');
-    r.style.setProperty('--chip','#efe9d8');
-    r.style.setProperty('--shadow','0 5px 15px rgba(0,0,0,.15)'); /* lighter shadow for light theme */
-    r.style.setProperty('--ok','#00a651'); /* green for news theme */
-    r.style.setProperty('--warn','#cc3300'); /* red for news theme */
-    document.body.dataset.theme = 'news';
-  }else{
-    // Default or fallback (revert to initial root values or a base theme)
-    r.style.cssText=''; // This will reset all --variables to their initial state defined in CSS
-    document.body.dataset.theme = '';
-  }
-}
+    function swapTheme(t) {
+      const r = document.documentElement;
+      if (t === 'sun') {
+        r.style.setProperty('--bg', '#0a0b0c');
+        r.style.setProperty('--ink', '#fffeee');
+        r.style.setProperty('--muted', '#c9c3a8');
+        r.style.setProperty('--hi', '#ffc857');
+        r.style.setProperty('--accent', '#8bdcff');
+        r.style.setProperty('--card', '#111720');
+        r.style.setProperty('--rule', '#2b3955');
+        r.style.setProperty('--line', '#20293a');
+        r.style.setProperty('--chip', '#101724');
+        r.style.setProperty('--shadow', '0 10px 28px rgba(0,0,0,.35)');
+        r.style.setProperty('--ok', '#95f29b');
+        r.style.setProperty('--warn', '#ff7a7a');
+        document.body.dataset.theme = '';
+      } else if (t === 'zen') {
+        r.style.setProperty('--bg', '#000');
+        r.style.setProperty('--ink', '#ffffff');
+        r.style.setProperty('--hi', '#FF0000'); /* Rewind Red */
+        r.style.setProperty('--accent', '#707070'); /* Nostalgia Gray */
+        r.style.setProperty('--card', '#0a0a0a');
+        r.style.setProperty('--rule', '#222');
+        r.style.setProperty('--muted', '#bdbdbd');
+        r.style.setProperty('--line', '#1b1b1b');
+        r.style.setProperty('--chip', '#0d0d0d');
+        r.style.setProperty('--shadow', '0 10px 28px rgba(0,0,0,.35)');
+        r.style.setProperty('--ok', '#95f29b');
+        r.style.setProperty('--warn', '#ff7a7a');
+        document.body.dataset.theme = '';
+      } else if (t === 'bw') {
+        // Black/White theme aligned to studio dark
+        r.style.setProperty('--bg', '#0e1116');
+        r.style.setProperty('--ink', '#f4f6f9');
+        r.style.setProperty('--muted', '#9aa7bd');
+        r.style.setProperty('--hi', '#e8e8e8');
+        r.style.setProperty('--accent', '#a7c7ff');
+        r.style.setProperty('--card', '#131923');
+        r.style.setProperty('--rule', '#20293a');
+        r.style.setProperty('--line', '#202636');
+        r.style.setProperty('--chip', '#0c101a');
+        r.style.setProperty('--shadow', '0 10px 28px rgba(0,0,0,.35)');
+        r.style.setProperty('--ok', '#95f29b');
+        r.style.setProperty('--warn', '#ff7a7a');
+        document.body.dataset.theme = '';
+      } else if (t === 'news') {
+        // Newspaper theme
+        r.style.setProperty('--bg', '#f7f4e9');
+        r.style.setProperty('--ink', '#1b1b1b');
+        r.style.setProperty('--muted', '#5b5b5b');
+        r.style.setProperty('--hi', '#222222');
+        r.style.setProperty('--accent', '#b55600');
+        r.style.setProperty('--card', '#fffdfa');
+        r.style.setProperty('--rule', '#e0dbc9');
+        r.style.setProperty('--line', '#d9d3bf');
+        r.style.setProperty('--chip', '#efe9d8');
+        r.style.setProperty('--shadow', '0 5px 15px rgba(0,0,0,.15)'); /* lighter shadow for light theme */
+        r.style.setProperty('--ok', '#00a651'); /* green for news theme */
+        r.style.setProperty('--warn', '#cc3300'); /* red for news theme */
+        document.body.dataset.theme = 'news';
+      } else {
+        // Default or fallback (revert to initial root values or a base theme)
+        r.style.cssText = ''; // This will reset all --variables to their initial state defined in CSS
+        document.body.dataset.theme = '';
+      }
+    }
 
-// Keyboard navigation
-document.addEventListener('keydown',(e)=>{
-  const slides = Array.from(document.querySelectorAll('.slide'));
-  const idx = slides.findIndex(s=>s.classList.contains('active'));
-  if(e.key==='ArrowRight' || e.key===' '){
-    e.preventDefault();
-    showSlide(Math.min(slides.length-1, idx+1));
-  }
-  if(e.key==='ArrowLeft'){
-    e.preventDefault();
-    showSlide(Math.max(0, idx-1));
-  }
-  if(e.key.toLowerCase()==='g'){
-    e.preventDefault();
-    showGrid();
-  }
-});
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const idx = slides.findIndex(s => s.classList.contains('active'));
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        showSlide(Math.min(slides.length - 1, idx + 1));
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        showSlide(Math.max(0, idx - 1));
+      }
+      if (e.key.toLowerCase() === 'g') {
+        e.preventDefault();
+        showGrid();
+      }
+    });
 
-// Boot: show the first slide and set default theme
-document.addEventListener('DOMContentLoaded',()=>{
-  showSlide(0);
-  const sel = document.getElementById('themeSel');
-  const val = sel ? sel.value : 'bw';
-  swapTheme(val);
-});
-</script>
+    // Boot: show the first slide and set default theme
+    document.addEventListener('DOMContentLoaded', () => {
+      showSlide(0);
+      const sel = document.getElementById('themeSel');
+      const val = sel ? sel.value : 'bw';
+      swapTheme(val);
+    });
+  </script>
 </body>
+
 </html>

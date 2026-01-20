@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Architecture of the New Mind</title>
+    <style>
+        :root {
+            --red: #ff3333;
+            --dark-red: #4a0f0f;
+            --cyan: #00f0ff;
+            --dark-cyan: #003a3d;
+            --bg: #050505;
+            --text: #ffffff;
+            --gray: #888;
+            --panel-bg: rgba(15, 15, 15, 0.95);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- UI Overlay --- */
+        #progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--red);
+            width: 0%;
+            z-index: 100;
+            transition: width 0.3s ease, background-color 0.5s ease;
+        }
+
+        #slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            opacity: 0.5;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        /* --- Canvas Background --- */
+        #swarm-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        /* --- Slides Container --- */
+        #app {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            transform: translateY(20px) scale(0.95);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0) scale(1);
+        }
+
+        /* --- Typography & Elements --- */
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--red), #fff, var(--cyan));
+            -webkit-background-clip: text;
+            color: transparent;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        h3 {
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--gray);
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            display: inline-block;
+        }
+
+        p {
+            font-size: clamp(1rem, 1.5vw, 1.3rem);
+            line-height: 1.6;
+            color: #ccc;
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+
+        strong {
+            color: white;
+            font-weight: 700;
+        }
+
+        .red-text {
+            color: var(--red);
+        }
+
+        .cyan-text {
+            color: var(--cyan);
+        }
+
+        .btn-nav {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 15%;
+            z-index: 50;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .btn-nav.prev {
+            left: 0;
+        }
+
+        .btn-nav.next {
+            right: 0;
+        }
+
+        /* Mobile/Touch hints */
+        .btn-nav:hover {
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.05), transparent);
+        }
+
+        .btn-nav.next:hover {
+            background: linear-gradient(to left, rgba(255, 255, 255, 0.05), transparent);
+        }
+
+        /* --- Interactive Modules --- */
+        .module-box {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transition: border-color 0.3s;
+        }
+
+        /* Miroshnichenko Sim */
+        .viral-box {
+            border-color: rgba(255, 51, 51, 0.3);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        #likes-display {
+            color: var(--red);
+            transition: transform 0.1s;
+        }
+
+        .viral-btn {
+            background: var(--red);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--dark-red);
+            transition: all 0.1s;
+        }
+
+        .viral-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 var(--dark-red);
+        }
+
+        .feedback-area {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--red);
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Victor Sim */
+        .dynamic-box {
+            border-color: rgba(0, 240, 255, 0.3);
+        }
+
+        .visualization-window {
+            width: 100%;
+            height: 180px;
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slider-group {
+            margin-bottom: 20px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--cyan);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        input[type=range] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: #333;
+            height: 4px;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--cyan);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #0f172a;
+            box-shadow: 0 0 10px var(--cyan);
+        }
+
+        /* Synthesis Table */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 10px;
+        }
+
+        .comp-card {
+            padding: 25px;
+            border-radius: 12px;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .comp-card.miro {
+            background: linear-gradient(145deg, rgba(50, 0, 0, 0.6), rgba(20, 0, 0, 0.8));
+            border: 1px solid var(--red);
+        }
+
+        .comp-card.victor {
+            background: linear-gradient(145deg, rgba(0, 50, 50, 0.6), rgba(0, 20, 20, 0.8));
+            border: 1px solid var(--cyan);
+        }
+
+        .comp-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .comp-list li {
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            color: #ddd;
+            padding-left: 15px;
+            border-left: 3px solid;
+            line-height: 1.4;
+        }
+
+        .miro .comp-list li {
+            border-color: var(--red);
+        }
+
+        .victor .comp-list li {
+            border-color: var(--cyan);
+        }
+
+        /* --- NOTES FOOTER --- */
+        #notes-footer {
+            height: 25vh;
+            /* Fixed height for footer */
+            min-height: 180px;
+            width: 100%;
+            background: var(--panel-bg);
+            border-top: 1px solid #333;
+            z-index: 80;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(20px);
+        }
+
+        #notes-content {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            height: 100%;
+        }
+
+        .note-section h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            opacity: 0.6;
+            font-family: 'Courier New', monospace;
+        }
+
+        .note-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+
+        .discussion-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #fff;
+            height: fit-content;
+        }
+
+        .discussion-question {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            font-style: italic;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            #notes-footer {
+                height: auto;
+                max-height: 35vh;
+                overflow-y: auto;
+            }
+
+            #notes-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .module-box {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Canvas Background -->
+    <canvas id="swarm-canvas"></canvas>
+
+    <!-- UI Overlay -->
+    <div id="progress-bar"></div>
+    <div id="slide-counter">1 / 8</div>
+
+    <!-- Navigation Click Zones -->
+    <button class="btn-nav prev" id="btn-prev" aria-label="Previous Slide"></button>
+    <button class="btn-nav next" id="btn-next" aria-label="Next Slide"></button>
+
+    <!-- App Container -->
+    <div id="app">
+
+        <!-- SLIDE 1: Title -->
+        <div class="slide active" data-theme="neutral">
+            <h3>Report W02-S5</h3>
+            <h1>Architecture of<br>The New Mind</h1>
+            <p>Comparing <span class="red-text">Miroshnichenko</span> (The Viral Publicator) vs. <span
+                    class="cyan-text">Victor</span> (The System Thinker)</p>
+            <div style="margin-top: 2rem; font-size: 0.8rem; color: #666; animation: pulse 2s infinite;">TAP RIGHT TO
+                BEGIN</div>
+        </div>
+
+        <!-- SLIDE 2: Context -->
+        <div class="slide" data-theme="red">
+            <h3>The Historical Shift</h3>
+            <h2>The Collapse of the Gatekeeper</h2>
+            <div class="module-box" style="border-color: #333;">
+                <p><strong>The Gutenberg Parenthesis (1500-2000)</strong><br>A 500-year anomaly where information was
+                    scarce and curated by elites.</p>
+                <div style="height: 1px; background: #333; margin: 20px 0;"></div>
+                <p><strong>The Post-Gutenberg Era (Now)</strong><br>Scarcity has evaporated. We have moved from <em
+                        class="red-text">Selection</em> to <em class="red-text">Saturation</em>.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: Miroshnichenko Sim -->
+        <div class="slide" data-theme="red">
+            <h3>Miroshnichenko: The Motivation</h3>
+            <h2>I Publish, Therefore I Am</h2>
+            <p style="font-size: 1rem; margin-bottom: 1rem;">In a network, silence is death. We do not publish to
+                inform; we publish to trigger a signal.</p>
+            <div class="module-box viral-box">
+                <div class="feedback-area" id="viral-feedback"></div>
+                <div class="stat-row">
+                    <div class="stat-item">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                            fill="none" class="red-text">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                        </svg>
+                        <span id="likes-display">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                            fill="none" class="gray-text">
+                            <path
+                                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                            </path>
+                        </svg>
+                        <span id="comments-display">0</span>
+                    </div>
+                </div>
+                <button class="viral-btn" id="publish-btn">Publish Opinion</button>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: The Problem -->
+        <div class="slide" data-theme="neutral">
+            <h3>Victor: The Critique</h3>
+            <h2>Dead Fish</h2>
+            <p>We use supercomputers as <span style="border-bottom: 2px solid var(--cyan)">really fast paper</span>. We
+                treat dynamic systems as static text.</p>
+            <div
+                style="background: #111; padding: 20px; border-left: 4px solid var(--cyan); text-align: left; font-family: monospace; color: #888; width: 100%; max-width: 600px;">
+                <span style="color: #555">// The Unthinkable Thought</span><br><br>
+                Climate_Change = "Complex Feedback Loop";<br>
+                Our_Tool = "Text Article";<br><br>
+                if (Tool != Loop) {<br>
+                &nbsp;&nbsp;Result = "Confusion & Conspiracy";<br>
+                }
+            </div>
+        </div>
+
+        <!-- SLIDE 5: Victor Sim -->
+        <div class="slide" data-theme="cyan">
+            <h3>Victor: The Solution</h3>
+            <h2>From Symbols to Behavior</h2>
+            <div class="module-box dynamic-box">
+                <div class="visualization-window">
+                    <svg width="100%" height="100%" id="sim-svg">
+                        <line x1="0" y1="50%" x2="100%" y2="50%" stroke="#334155" stroke-dasharray="4" />
+                        <path id="wave-path" d="" fill="none" stroke="var(--cyan)" stroke-width="3"></path>
+                    </svg>
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Frequency</span>
+                        <span id="freq-val">1.0</span>
+                    </div>
+                    <input type="range" id="freq-slider" min="0.5" max="5.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Amplitude</span>
+                        <span id="amp-val">50</span>
+                    </div>
+                    <input type="range" id="amp-slider" min="10" max="70" step="1" value="50">
+                </div>
+                <p style="font-size: 0.8rem; margin: 0; color: var(--cyan);">Direct Manipulation = Intuitive
+                    Understanding</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: Dynamicland -->
+        <div class="slide" data-theme="cyan">
+            <h3>The Environment</h3>
+            <h2>The Room vs. The Feed</h2>
+            <div class="comparison-grid">
+                <div class="comp-card" style="background: rgba(255,50,50,0.1); border: 1px solid var(--red);">
+                    <strong class="red-text">The Feed (Miro)</strong>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">Algorithmic, private, and infinite. It feeds you
+                        what you <em>want</em> to hear (Validation).</p>
+                </div>
+                <div class="comp-card" style="background: rgba(0,255,255,0.1); border: 1px solid var(--cyan);">
+                    <strong class="cyan-text">The Room (Victor)</strong>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">Physical, shared, and finite. It shows everyone the
+                        same simulation (Truth).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: Synthesis -->
+        <div class="slide" data-theme="neutral">
+            <h3>The Final Synthesis</h3>
+            <h2>Who Authors vs. What is Thought</h2>
+            <div class="comparison-grid">
+                <div class="comp-card miro">
+                    <strong class="red-text">THE PUBLICATOR</strong>
+                    <ul class="comp-list">
+                        <li><strong>Motivation:</strong> Social Response</li>
+                        <li><strong>Mechanism:</strong> Viral Editor</li>
+                        <li><strong>Outcome:</strong> Polarization</li>
+                    </ul>
+                </div>
+                <div class="comp-card victor">
+                    <strong class="cyan-text">THE SYSTEM THINKER</strong>
+                    <ul class="comp-list">
+                        <li><strong>Motivation:</strong> Understanding</li>
+                        <li><strong>Mechanism:</strong> Dynamic Model</li>
+                        <li><strong>Outcome:</strong> Insight</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: Outro -->
+        <div class="slide" data-theme="neutral">
+            <h3>Conclusion</h3>
+            <h2>The Emancipation of Cognition</h2>
+            <p>We have successfully democratized <strong>Speech</strong>.</p>
+            <p>We have failed to democratize <strong>Understanding</strong>.</p>
+            <p style="margin-top: 2rem;">The task of the next century is to build tools that allow the public to
+                <em>think</em> the systems they now <em>author</em>.</p>
+            <button onclick="window.location.reload()"
+                style="background: #333; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 20px;">Replay
+                Presentation</button>
+        </div>
+
+    </div>
+
+    <!-- NOTES FOOTER -->
+    <div id="notes-footer">
+        <div id="notes-content">
+            <div class="note-section">
+                <h4>Script Note / Deep Dive</h4>
+                <p id="note-text" class="note-text">Loading...</p>
+            </div>
+            <div class="discussion-box">
+                <h4>Discussion Question</h4>
+                <p id="discussion-text" class="discussion-question">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- Content Data --- */
+        const contentData = [
+            {
+                // Slide 1
+                note: "Welcome. This presentation synthesizes the work of media ecologist Andrey Miroshnichenko and interface designer Bret Victor. We are exploring a paradox: We have never had more people 'writing' (Miroshnichenko), yet our tools for 'thinking' remain stuck in the 1970s (Victor).",
+                question: "How does the device you are using right now change the way you form an opinion?"
+            },
+            {
+                // Slide 2
+                note: "Miroshnichenko argues we are closing the 'Gutenberg Parenthesis.' For 500 years, print created a class of professional gatekeepers (journalists/editors). Now, the technical barrier to entry is zero. We have 4 billion authors. This isn't just 'more' noise; it's a fundamental structural shift from a hierarchy to a flat network.",
+                question: "Is the ability to publish a human right, or a privilege that requires responsibility?"
+            },
+            {
+                // Slide 3
+                note: "This simulation demonstrates the 'Publicator's' dopamine loop. In a crowded network, you don't exist unless you get a reaction. The 'Viral Editor' isn't a person; it's a cloud of gnats. It blindly selects for High Arousal emotions (Anger, Fear, Joy) because those generate the most clicks. Nuance is filtered out because it doesn't travel well.",
+                question: "When was the last time you posted something specifically to get a reaction? How did it feel?"
+            },
+            {
+                // Slide 4
+                note: "Bret Victor argues that 'Media are thinking tools.' Currently, we use static text to describe dynamic systems. This is a mismatch. You cannot understand a pandemic or the economy by reading linear sentences; you need to see the variables interact. Because we lack these tools, we fall back on tribal narratives to explain complex things.",
+                question: "Can you explain how a bicycle works using only words, without using your hands?"
+            },
+            {
+                // Slide 5
+                note: "This is a 'Dynamic Medium.' Notice the difference: you aren't reading about the wave; you are playing with the rules that generate it. Victor calls this the 'Ladder of Abstraction.' By moving from symbols (static) to behavior (dynamic), we allow the human brain to use its visual processing power to understand complex math instantly.",
+                question: "If textbooks were replaced by simulations, how would that change how we test for intelligence?"
+            },
+            {
+                // Slide 6
+                note: "The 'Environment' matters. Miroshnichenko's environment is the Feed—a private, algorithmic tunnel that reinforces bias. Victor's ideal environment (Dynamicland) is a physical Room where code is projected on a table. In the Room, we must agree on the shared reality in front of us. In the Feed, we never have to agree.",
+                question: "Why is it easier to be cruel to someone on Twitter than to someone sitting at a table with you?"
+            },
+            {
+                // Slide 7
+                note: "Here is the core conflict. The 'Publicator' has the power to speak but lacks the tools to model complexity. They are 'Authoring without Thinking.' The 'System Thinker' has the tools to understand but is often drowned out by the viral swarm. We have created a society that is loud but blind.",
+                question: "Are we building technology that helps us express ourselves, or technology that helps us understand?"
+            },
+            {
+                // Slide 8
+                note: "To survive the 21st century, we need to upgrade our cognitive infrastructure. We cannot govern a complex world with 'Viral Editors.' We need to build 'Media for Thinking the Unthinkable'—tools that make complex systems visible, tangible, and understandable to the average citizen.",
+                question: "Final Debate: If you had $1 Billion to fix the internet, would you invest it in better moderation (policing the Publicator) or better education tools (upgrading the Thinker)?"
+            }
+        ];
+
+        /* --- State & Config --- */
+        const state = {
+            currentSlide: 0,
+            totalSlides: 8,
+            likes: 0,
+            comments: 0,
+            freq: 1.0,
+            amp: 50
+        };
+
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progress-bar');
+        const slideCounter = document.getElementById('slide-counter');
+        const canvas = document.getElementById('swarm-canvas');
+        const ctx = canvas.getContext('2d');
+        const noteText = document.getElementById('note-text');
+        const discussionText = document.getElementById('discussion-text');
+
+        /* --- Navigation Logic --- */
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === state.currentSlide) {
+                    slide.classList.add('active');
+
+                    // Theme color update
+                    const theme = slide.getAttribute('data-theme');
+                    if (theme === 'red') progressBar.style.backgroundColor = 'var(--red)';
+                    else if (theme === 'cyan') progressBar.style.backgroundColor = 'var(--cyan)';
+                    else progressBar.style.backgroundColor = 'white';
+                }
+            });
+
+            // Update Progress & Footer
+            const progress = ((state.currentSlide + 1) / state.totalSlides) * 100;
+            progressBar.style.width = `${progress}%`;
+            slideCounter.textContent = `${state.currentSlide + 1} / ${state.totalSlides}`;
+
+            // Update Footer Text with Fade
+            noteText.style.opacity = 0;
+            discussionText.style.opacity = 0;
+            setTimeout(() => {
+                noteText.textContent = contentData[state.currentSlide].note;
+                discussionText.textContent = contentData[state.currentSlide].question;
+                noteText.style.opacity = 1;
+                discussionText.style.opacity = 1;
+            }, 200);
+        }
+
+        function nextSlide() {
+            if (state.currentSlide < state.totalSlides - 1) {
+                state.currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (state.currentSlide > 0) {
+                state.currentSlide--;
+                updateSlide();
+            }
+        }
+
+        document.getElementById('btn-next').addEventListener('click', nextSlide);
+        document.getElementById('btn-prev').addEventListener('click', prevSlide);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        /* --- Viral Simulation --- */
+        const publishBtn = document.getElementById('publish-btn');
+        const likesDisplay = document.getElementById('likes-display');
+        const commentsDisplay = document.getElementById('comments-display');
+        const feedbackArea = document.getElementById('viral-feedback');
+
+        publishBtn.addEventListener('click', () => {
+            const newLikes = Math.floor(Math.random() * 50) + 10;
+            const newComments = Math.floor(Math.random() * 5);
+            state.likes += newLikes;
+            state.comments += newComments;
+            likesDisplay.textContent = state.likes.toLocaleString();
+            commentsDisplay.textContent = state.comments.toLocaleString();
+            feedbackArea.textContent = `+${newLikes} REACTION!`;
+            feedbackArea.style.opacity = '1';
+            setTimeout(() => feedbackArea.style.opacity = '0', 800);
+            swarmIntensity = 5;
+            setTimeout(() => swarmIntensity = 1, 500);
+        });
+
+        /* --- Dynamic Simulation --- */
+        const freqSlider = document.getElementById('freq-slider');
+        const ampSlider = document.getElementById('amp-slider');
+        const freqVal = document.getElementById('freq-val');
+        const ampVal = document.getElementById('amp-val');
+        const wavePath = document.getElementById('wave-path');
+        const svgContainer = document.querySelector('.visualization-window');
+
+        function updateWave() {
+            const width = svgContainer.clientWidth || 300;
+            const height = svgContainer.clientHeight || 150;
+            const points = [];
+            for (let i = 0; i <= width; i += 2) {
+                const y = (height / 2) + Math.sin(i * state.freq * 0.05) * state.amp;
+                points.push(`${i},${y}`);
+            }
+            wavePath.setAttribute('d', `M ${points.join(' L ')}`);
+        }
+
+        freqSlider.addEventListener('input', (e) => {
+            state.freq = parseFloat(e.target.value);
+            freqVal.textContent = state.freq.toFixed(1);
+            updateWave();
+        });
+
+        ampSlider.addEventListener('input', (e) => {
+            state.amp = parseInt(e.target.value);
+            ampVal.textContent = state.amp;
+            updateWave();
+        });
+
+        window.addEventListener('resize', updateWave);
+
+        /* --- Swarm Canvas --- */
+        let particles = [];
+        let swarmIntensity = 1;
+
+        function initSwarm() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            const count = window.innerWidth < 600 ? 30 : 60;
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    size: Math.random() * 2 + 1
+                });
+            }
+        }
+
+        function animateSwarm() {
+            const currentTheme = slides[state.currentSlide].getAttribute('data-theme');
+            let color = '136, 136, 136';
+            if (currentTheme === 'red') color = '255, 51, 51';
+            if (currentTheme === 'cyan') color = '0, 240, 255';
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx * swarmIntensity;
+                p.y += p.vy * swarmIntensity;
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                ctx.fillStyle = `rgba(${color}, 0.5)`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                particles.forEach(p2 => {
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 100) {
+                        ctx.strokeStyle = `rgba(${color}, ${0.15 - (dist / 1000)})`;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+            requestAnimationFrame(animateSwarm);
+        }
+
+        initSwarm();
+        animateSwarm();
+        updateSlide(); // Init text
+        setTimeout(updateWave, 100); // Init wave logic
+
+    </script>
+</body>
+
+</html>

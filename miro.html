@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miroshnichenko reads Bret Victor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        ::selection {
+            background-color: rgba(16, 185, 129, 0.3);
+        }
+
+        /* Progress Bar */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: #10b981;
+            width: 0%;
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        /* Slide Counter */
+        #slide-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            opacity: 0.5;
+            z-index: 100;
+            color: #10b981;
+        }
+
+        /* Navigation Zones */
+        .nav-zone {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 20%;
+            z-index: 50;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .nav-zone.prev {
+            left: 0;
+        }
+
+        .nav-zone.next {
+            right: 0;
+        }
+
+        /* Slides */
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Typography */
+        .slide-tag {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #10b981;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .slide h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .slide h2 {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            font-weight: 700;
+            color: #34d399;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .slide h3 {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .slide p {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            line-height: 1.6;
+            color: #cbd5e1;
+            max-width: 800px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #ef4444, #fff, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Content Boxes */
+        .content-box {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tree-box {
+            font-family: monospace;
+            font-size: 0.9rem;
+            background: rgba(2, 6, 23, 0.8);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #1e293b;
+            max-width: 700px;
+            text-align: left;
+        }
+
+        .tree-title {
+            color: #34d399;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .tree-item {
+            padding: 0.25rem 0;
+            color: #d1fae5;
+        }
+
+        .tree-indent {
+            opacity: 0.3;
+            margin-right: 0.5rem;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: #10b981;
+            transform: translateY(-4px);
+        }
+
+        .card-number {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            color: #e2e8f0;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+
+        .card-subtitle {
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: #10b981;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .card p {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-align: left;
+        }
+
+        /* Question Slides */
+        .question-content {
+            max-width: 900px;
+        }
+
+        .question-title {
+            font-family: monospace;
+            font-size: 1rem;
+            color: #10b981;
+            margin-bottom: 2rem;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .question-q {
+            font-size: clamp(1.3rem, 3vw, 2rem);
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 2rem;
+            line-height: 1.3;
+        }
+
+        .question-context {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid #10b981;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+        }
+
+        /* Constraint Box */
+        .constraint-box {
+            background: rgba(127, 29, 29, 0.3);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            max-width: 800px;
+        }
+
+        .constraint-box h3 {
+            font-size: 2rem;
+            color: #fecaca;
+            margin-bottom: 1.5rem;
+        }
+
+        .constraint-box p {
+            color: rgba(254, 202, 202, 0.9);
+            margin-bottom: 1rem;
+        }
+
+        .constraint-list {
+            list-style: disc;
+            padding-left: 1.5rem;
+            font-family: monospace;
+            color: rgba(254, 202, 202, 0.8);
+        }
+
+        .constraint-list li {
+            margin: 0.5rem 0;
+        }
+
+        .highlight {
+            background: rgba(239, 68, 68, 0.2);
+            padding: 0 0.25rem;
+            border-radius: 0.25rem;
+        }
+
+        .challenge-box {
+            margin-top: 1.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid #ef4444;
+        }
+
+        .challenge-label {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #f87171;
+            margin-bottom: 0.5rem;
+        }
+
+        .challenge-quote {
+            font-style: italic;
+            font-size: 1.25rem;
+            color: #fff;
+        }
+
+        /* Definition Grid */
+        .def-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            max-width: 900px;
+        }
+
+        .definition {
+            padding: 1.25rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #1e293b;
+            border-radius: 0.5rem;
+        }
+
+        .definition h4 {
+            color: #34d399;
+            font-family: monospace;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .definition p {
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            text-align: left;
+        }
+
+        /* Summary */
+        .summary-box {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            max-width: 800px;
+            backdrop-filter: blur(10px);
+        }
+
+        .summary-text {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+
+        .bold {
+            font-weight: bold;
+            color: #34d399;
+        }
+
+        .action {
+            background: rgba(6, 78, 59, 0.3);
+            padding: 0 0.25rem;
+            border-radius: 0.25rem;
+        }
+
+        .term {
+            color: #fcd34d;
+            border-bottom: 1px solid rgba(252, 211, 77, 0.5);
+        }
+
+        .danger {
+            color: #f87171;
+            border-bottom: 1px solid rgba(248, 113, 113, 0.5);
+        }
+
+        /* Footer Hint */
+        .footer-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #475569;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .def-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Progress Bar -->
+    <div id="progress-bar"></div>
+    <div id="slide-counter">1 / 11</div>
+
+    <!-- Navigation Zones -->
+    <div class="nav-zone prev" onclick="prevSlide()"></div>
+    <div class="nav-zone next" onclick="nextSlide()"></div>
+
+    <!-- Footer Hint -->
+    <div class="footer-hint">Click sides or use arrow keys to navigate</div>
+
+    <!-- Slides Container -->
+    <div id="slides">
+
+        <!-- SLIDE 1: Intro -->
+        <div class="slide active">
+            <div class="slide-tag">Running: media_ecology_analysis.exe</div>
+            <h1 class="gradient-text">MIROSHNICHENKO<br>READS<br>BRET VICTOR</h1>
+            <p style="color: #10b981; font-family: monospace; margin-top: 2rem;">A Media Ecology Analysis</p>
+        </div>
+
+        <!-- SLIDE 2: Sitemap -->
+        <div class="slide">
+            <h2>The Analysis Topology</h2>
+            <p style="margin-bottom: 2rem;">Mapping Victor's "Media for Thinking" onto Miroshnichenko's Media Ecology
+            </p>
+            <div class="tree-box">
+                <div class="tree-title">&lt;Miroshnichenko-Approach-to-Victor&gt;</div>
+
+                <div class="tree-item">
+                    <span>[classifies] &lt;Victor&gt; [as] &lt;Technocrat-with-Humanities-Function&gt;</span>
+                </div>
+                <div class="tree-item" style="color: #cbd5e1;">
+                    <span class="tree-indent">│ </span>
+                    <span>├── &lt;Technocratic-Innovation&gt; (The Builder)</span>
+                </div>
+                <div class="tree-item" style="color: #cbd5e1;">
+                    <span class="tree-indent">│ </span>
+                    <span>└── &lt;Cohesion-Maintenance&gt; (The Cultural Role)</span>
+                </div>
+
+                <div style="height: 1rem;"></div>
+
+                <div class="tree-item">
+                    <span>[treats] &lt;Media-for-Thinking&gt; [as] &lt;Social-Software&gt;</span>
+                </div>
+                <div class="tree-item" style="color: #cbd5e1;">
+                    <span class="tree-indent">│ </span>
+                    <span>├── [reduces] &lt;Temporal-Stress&gt;</span>
+                </div>
+                <div class="tree-item" style="color: #cbd5e1;">
+                    <span class="tree-indent">│ </span>
+                    <span>├── [supports] &lt;Cultural-Adaptation&gt;</span>
+                </div>
+                <div class="tree-item" style="color: #cbd5e1;">
+                    <span class="tree-indent">│ </span>
+                    <span>└── [teaches] &lt;Internet-Hygiene&gt;</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: Core Translation -->
+        <div class="slide">
+            <h2>The Core Translations</h2>
+            <p style="margin-bottom: 2rem;">How Andrey Miroshnichenko translates Bret Victor's concepts</p>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-number">1</div>
+                    <h3>Adaptation Infrastructure</h3>
+                    <p class="card-subtitle">Victor as Cultural Prosthesis</p>
+                    <p>Victor is not just building UI; he is building the 'software' that Kapitsa says is lagging behind
+                        the 'hardware' of civilization. He is turning 'too-fast change' into learnable, navigable
+                        interfaces.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-number">2</div>
+                    <h3>Inside the Viral Editor</h3>
+                    <p class="card-subtitle">Restoring Coherence</p>
+                    <p>Miro sees Victor's work as an attempt to restore coherence without restoring old gatekeepers. Not
+                        'palaces and temples' deciding meaning, but tools that let people SEE the machinery of
+                        meaning-production.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-number">3</div>
+                    <h3>The Hard Constraint</h3>
+                    <p class="card-subtitle">The Ecosystem Trap</p>
+                    <p>Victor builds for 'deep understanding.' The Viral Editor selects for 'high engagement.' Andrey
+                        warns that 'good thinking tools' can be outcompeted by 'addictive feeling tools' in the
+                        attention economy.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: Hard Constraint -->
+        <div class="slide">
+            <h2>The Hard Constraint</h2>
+            <p style="margin-bottom: 2rem;">The conflict between Victor's Idealism and the Viral Editor</p>
+            <div class="constraint-box">
+                <h3>The Viral Editor can eat anything.</h3>
+                <p>Andrey would push Bret to design for a brutal reality:</p>
+                <ul class="constraint-list">
+                    <li>Visibility is governed by <span class="highlight">[ranking]</span> and <span
+                            class="highlight">[amplifying]</span>.</li>
+                    <li>"Good thinking tools" (high cognitive load) are evolutionarily disadvantaged against "high
+                        engagement tools" (low cognitive load, high emotional reward).</li>
+                </ul>
+                <div class="challenge-box">
+                    <p class="challenge-label">MIROSHNICHENKO'S CHALLENGE:</p>
+                    <p class="challenge-quote">
+                        "How does your medium survive in an ecosystem where <span
+                            style="color: #f87171; font-weight: bold;">algorithms</span> steer attention, not truth?"
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: Question 1 -->
+        <div class="slide">
+            <div class="question-content">
+                <h2>Power Questions</h2>
+                <div class="question-title">&lt;Monopoly-over-Meaning&gt;</div>
+                <div class="question-q">Does the tool [decentralize] meaning or [recentralize] it in new elites?</div>
+                <div class="question-context">
+                    <p>Victor wants to kill the 'priesthood' of static symbols. Miro asks if he is simply creating a new
+                        priesthood of 'Simulation Architects'—those capable of building the models everyone else lives
+                        inside.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: Question 2 -->
+        <div class="slide">
+            <div class="question-content">
+                <h2>Power Questions</h2>
+                <div class="question-title">&lt;Internet-Presence-as-Existence&gt;</div>
+                <div class="question-q">Does the tool [relieve] the obligation to publish—or [intensify] it?</div>
+                <div class="question-context">
+                    <p>If 'drawing dynamic visualizations' becomes the standard for truth, does the burden of expression
+                        become too heavy for the average user? 'What is possible becomes obligatory.'</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: Question 3 -->
+        <div class="slide">
+            <div class="question-content">
+                <h2>Power Questions</h2>
+                <div class="question-title">&lt;Temporal-Stress&gt;</div>
+                <div class="question-q">Does better instrumentation [reduce] stress—or [accelerate] the cycle of
+                    novelty?</div>
+                <div class="question-context">
+                    <p>Victor argues that seeing the system reduces the stress of not knowing. Miro warns that real-time
+                        feedback loops often increase anxiety and the speed of reaction, destroying the time needed for
+                        'thinking.'</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: Question 4 -->
+        <div class="slide">
+            <div class="question-content">
+                <h2>Power Questions</h2>
+                <div class="question-title">&lt;Institutions-versus-Net&gt;</div>
+                <div class="question-q">Can the tool [reconcile] institutional cohesion with network freedom?</div>
+                <div class="question-context">
+                    <p>Victor is essentially an institutionalist building tools for individuals. Can these tools create
+                        shared reality (Institutions) or just fractured, personal realities (The Net)?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: Recursive Definitions -->
+        <div class="slide">
+            <h2>Recursive Definitions</h2>
+            <p style="margin-bottom: 2rem;">New vocabulary for the Victor-Miro synthesis</p>
+            <div class="def-grid">
+                <div class="definition">
+                    <h4>&lt;Technocrat-with-a-Humanities-Function&gt;</h4>
+                    <p>A builder whose work [serves] the humanities role of [maintaining] cohesion by [turning] the new
+                        into usable interfaces.</p>
+                </div>
+                <div class="definition">
+                    <h4>&lt;Adaptation-Infrastructure&gt;</h4>
+                    <p>The software (norms, literacies, sense-making tools) that [lets] people and societies [adapt] to
+                        technological change.</p>
+                </div>
+                <div class="definition">
+                    <h4>&lt;The-Viral-Editor&gt;</h4>
+                    <p>The [process] by which a society [integrates] new content into stable and shared realities based
+                        on engagement and propagation.</p>
+                </div>
+                <div class="definition">
+                    <h4>&lt;Cohesion-Maintenance&gt;</h4>
+                    <p>The [work] of [keeping] a society intelligible to itself through shared frames, narratives, and
+                        norms.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: The Syntax -->
+        <div class="slide">
+            <h2>The Syntax</h2>
+            <p style="margin-bottom: 2rem;">Executable Summary</p>
+            <div class="summary-box">
+                <p class="summary-text">
+                    <span class="bold">Andrey Miroshnichenko</span> would <span class="action">[approach]</span> <span
+                        class="bold">Bret Victor</span> as a builder of <span class="term">adaptation
+                        infrastructure</span> for the <span class="term">Internet Era</span>, while <span
+                        class="action">[insisting]</span> his "thinkability media" must be designed to withstand the
+                    <span class="danger">Viral Editor</span> and not deepen <span class="danger">social
+                        polarization</span>.
+                </p>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: End -->
+        <div class="slide">
+            <div class="slide-tag">Analysis Complete</div>
+            <h1>Thank You</h1>
+            <p style="font-family: monospace; color: #10b981;">Press R to restart or use arrows to review</p>
+        </div>
+
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const progressBar = document.getElementById('progress-bar');
+        const slideCounter = document.getElementById('slide-counter');
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = `${progress}%`;
+            slideCounter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'r' || e.key === 'R') {
+                currentSlide = 0;
+                updateSlide();
+            }
+        });
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human-as-Media: Deep Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+        :root {
+            --color-bg: #f3f4f6;
+            --color-surface: #ffffff;
+            --color-text: #1f2937;
+            --color-text-dim: #6b7280;
+            --color-accent: #3b82f6;
+            --color-accent-dim: #eff6ff;
+            --color-border: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* --- Interactive Term Styling (Pills) --- */
+        .interactive-term {
+            display: inline-block;
+            background-color: white;
+            border: 1px solid var(--color-border);
+            border-bottom: 2px solid var(--color-border);
+            /* slight 3d effect */
+            padding: 0px 6px;
+            border-radius: 6px;
+            font-weight: 500;
+            color: var(--color-text);
+            cursor: pointer;
+            /* Changed to pointer to indicate clickability */
+            transition: all 0.15s ease-out;
+            margin: 0 2px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            user-select: none;
+        }
+
+        .interactive-term:hover {
+            transform: translateY(-1px);
+            border-color: var(--color-accent);
+            border-bottom-color: var(--color-accent);
+            color: var(--color-accent);
+            background-color: var(--color-accent-dim);
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+        }
+
+        .term-active {
+            background-color: var(--color-accent);
+            color: white;
+            border-color: var(--color-accent);
+            border-bottom-color: #1d4ed8;
+            /* darker blue */
+        }
+
+        .term-active:hover {
+            color: white;
+            background-color: var(--color-accent);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        /* Sliders */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: var(--color-border);
+            border-radius: 2px;
+        }
+
+        /* Resizers */
+        .resizer {
+            width: 4px;
+            cursor: col-resize;
+            background: transparent;
+            transition: background 0.2s;
+            z-index: 50;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .resizer:hover,
+        .resizer.resizing {
+            background: var(--color-accent);
+        }
+
+        .resizer::after {
+            content: '';
+            position: absolute;
+            left: -4px;
+            right: -4px;
+            top: 0;
+            bottom: 0;
+            z-index: 50;
+        }
+
+        /* Collapsible Ontology Transitions */
+        .ontology-section {
+            transition: all 0.3s ease;
+        }
+
+        .ontology-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .chevron {
+            transition: transform 0.2s;
+        }
+
+        .collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .collapsed+.ontology-content {
+            max-height: 0px !important;
+            opacity: 0;
+            margin-bottom: 0;
+        }
+
+        /* Panel Visibility */
+        .panel-hidden {
+            display: none !important;
+        }
+
+        .panel-collapsed-view {
+            width: 40px !important;
+            min-width: 40px !important;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px 0;
+            background: white;
+            border-color: var(--color-border);
+            cursor: pointer;
+        }
+
+        .panel-collapsed-view:hover {
+            background: #f9fafb;
+            color: var(--color-accent);
+        }
+
+        /* Slide View Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-animate {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="text-sm">
+
+    <!-- Navbar -->
+    <header
+        class="h-14 bg-white border-b border-gray-200 flex items-center px-6 justify-between shrink-0 z-20 shadow-sm relative">
+        <div class="flex items-center gap-3">
+            <a href="index.html"
+                class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-900 transition-all shadow-sm"
+                title="Back to Hub">
+                <i data-lucide="home" class="w-4 h-4"></i>
+            </a>
+            <div
+                class="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-inner">
+                HM
+            </div>
+            <div>
+                <h1 class="font-bold text-gray-900 tracking-tight">Human-as-Media</h1>
+                <p class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Explorer Environment v2.4</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex bg-gray-100 rounded-lg p-1 gap-1">
+                <button onclick="app.setPreset('default')"
+                    class="px-3 py-1.5 rounded-md text-xs font-medium text-gray-600 hover:bg-white hover:shadow-sm transition">Balanced</button>
+                <button onclick="app.setPreset('echo_chamber')"
+                    class="px-3 py-1.5 rounded-md text-xs font-medium text-gray-600 hover:bg-white hover:shadow-sm transition">Echo
+                    Chamber</button>
+                <button onclick="app.setPreset('viral_storm')"
+                    class="px-3 py-1.5 rounded-md text-xs font-medium text-gray-600 hover:bg-white hover:shadow-sm transition">Viral
+                    Storm</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex-1 flex overflow-hidden w-full" id="main-container">
+
+        <!-- COL 1: The Ontology (Concept Space) -->
+        <div id="panel-left"
+            class="bg-white border-r border-gray-200 flex flex-col z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]"
+            style="width: 500px; min-width: 300px; max-width: 800px;">
+            <!-- Header with View Toggle -->
+            <div class="p-4 border-b border-gray-100 bg-gray-50/50 backdrop-blur shrink-0 flex flex-col gap-3">
+                <div class="flex justify-between items-center">
+                    <h2 class="font-semibold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="book-open" class="w-4 h-4 text-blue-500"></i> Ontology Map
+                    </h2>
+                    <button onclick="app.togglePanel('left')" class="p-1 hover:bg-gray-200 rounded text-gray-500"
+                        title="Minimize Panel">
+                        <i data-lucide="chevrons-left" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <!-- View Switcher -->
+                <div class="flex bg-gray-100 p-1 rounded-md self-start">
+                    <button id="btn-view-list" onclick="app.setOntologyView('list')"
+                        class="flex items-center gap-2 px-3 py-1 rounded text-xs font-medium bg-white shadow-sm text-gray-800 transition-all">
+                        <i data-lucide="list-tree" class="w-3 h-3"></i> List
+                    </button>
+                    <button id="btn-view-slide" onclick="app.setOntologyView('slide')"
+                        class="flex items-center gap-2 px-3 py-1 rounded text-xs font-medium text-gray-500 hover:text-gray-900 transition-all">
+                        <i data-lucide="presentation" class="w-3 h-3"></i> Slide Deck
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Container -->
+            <div class="flex-1 overflow-y-auto p-0 bg-white relative" id="ontology-container">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- Collapsed Left View -->
+        <div id="panel-left-collapsed"
+            class="panel-hidden border-r border-gray-200 bg-white hover:bg-gray-50 cursor-pointer flex flex-col items-center py-4 gap-4 w-[40px]"
+            onclick="app.togglePanel('left')">
+            <i data-lucide="book-open" class="w-4 h-4 text-blue-500 mb-4"></i>
+            <span class="text-xs font-medium tracking-widest text-gray-400 uppercase whitespace-nowrap"
+                style="writing-mode: vertical-rl; transform: rotate(180deg);">Ontology</span>
+        </div>
+
+        <div class="resizer" id="resizer-left"></div>
+
+        <!-- COL 2: The Simulation -->
+        <div class="flex-1 flex flex-col relative bg-slate-50 overflow-hidden min-w-[300px]">
+            <div class="absolute inset-0 z-0" id="canvas-wrapper">
+                <canvas id="sim-canvas"></canvas>
+            </div>
+
+            <!-- Context Overlay (Dynamic Label) -->
+            <div class="absolute top-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none transition-all duration-300"
+                id="sim-context-overlay">
+                <!-- Injected by JS -->
+            </div>
+
+            <!-- Legend Overlay -->
+            <div class="absolute top-6 left-6 z-10 pointer-events-none">
+                <div
+                    class="bg-white/90 backdrop-blur border border-gray-200 rounded-lg p-3 shadow-sm space-y-2 pointer-events-auto">
+                    <div
+                        class="flex items-center gap-2 text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
+                        Cohorts</div>
+                    <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        Tech / Rational</div>
+                    <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 rounded-full bg-red-500"></span>
+                        Politics / Tribal</div>
+                    <div class="flex items-center gap-2 text-xs"><span
+                            class="w-2 h-2 rounded-full bg-emerald-500"></span> Art / Expressive</div>
+                </div>
+            </div>
+
+            <!-- Scale Control Overlay -->
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-full max-w-md pointer-events-none">
+                <div
+                    class="bg-white border border-gray-200 rounded-xl shadow-sm p-4 pointer-events-auto flex items-center gap-4 mx-4">
+                    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest w-16 text-right">Scope</div>
+                    <div class="flex-1 relative h-6 flex items-center">
+                        <div class="absolute w-full h-1 bg-gray-200 rounded-full"></div>
+                        <input type="range" id="scale-slider" min="0" max="2" step="0.01" value="0.5"
+                            class="relative w-full z-10 opacity-0 cursor-pointer h-full">
+                        <div id="slider-thumb"
+                            class="absolute h-4 w-4 bg-blue-600 rounded-full shadow border-2 border-white top-1/2 -translate-y-1/2 pointer-events-none transition-all duration-75"
+                            style="left: 25%"></div>
+                    </div>
+                    <div class="w-24 text-center">
+                        <span id="scale-label"
+                            class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold uppercase">Cohort</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="resizer" id="resizer-right"></div>
+
+        <!-- Collapsed Right View -->
+        <div id="panel-right-collapsed"
+            class="panel-hidden border-l border-gray-200 bg-white hover:bg-gray-50 cursor-pointer flex flex-col items-center py-4 gap-4 w-[40px]"
+            onclick="app.togglePanel('right')">
+            <i data-lucide="sliders" class="w-4 h-4 text-gray-500 mb-4"></i>
+            <span class="text-xs font-medium tracking-widest text-gray-400 uppercase whitespace-nowrap"
+                style="writing-mode: vertical-rl; transform: rotate(180deg);">Controls</span>
+        </div>
+
+        <!-- COL 3: The Control Room -->
+        <div id="panel-right"
+            class="bg-white border-l border-gray-200 flex flex-col z-10 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]"
+            style="width: 320px; min-width: 280px; max-width: 500px;">
+            <div
+                class="p-4 border-b border-gray-100 bg-gray-50/50 backdrop-blur shrink-0 flex justify-between items-center h-[88px] box-border">
+                <button onclick="app.togglePanel('right')" class="p-1 hover:bg-gray-200 rounded text-gray-500"
+                    title="Minimize Panel">
+                    <i data-lucide="chevrons-right" class="w-4 h-4"></i>
+                </button>
+                <h3 class="font-semibold text-gray-800 text-xs uppercase tracking-wider flex items-center gap-2">
+                    Controls
+                </h3>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5 space-y-6">
+                <!-- Controls Content -->
+                <div class="space-y-4">
+                    <h3 class="font-semibold text-gray-800 text-xs uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-3 h-3"></i> Viral Editor
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="group">
+                            <div class="flex justify-between text-xs mb-1.5">
+                                <span class="text-gray-600 font-medium">Engagement Bias (wE)</span>
+                                <span class="mono text-blue-600" id="val-engagement">1.0</span>
+                            </div>
+                            <input type="range" id="param-engagement" min="0" max="3" step="0.1" value="1.0"
+                                class="w-full">
+                            <p class="text-[10px] text-gray-400 mt-1">Rewarding clicks/likes.</p>
+                        </div>
+                        <div class="group">
+                            <div class="flex justify-between text-xs mb-1.5">
+                                <span class="text-gray-600 font-medium">Novelty Bias (wN)</span>
+                                <span class="mono text-blue-600" id="val-novelty">0.8</span>
+                            </div>
+                            <input type="range" id="param-novelty" min="0" max="3" step="0.1" value="0.8"
+                                class="w-full">
+                            <p class="text-[10px] text-gray-400 mt-1">Rewarding newness.</p>
+                        </div>
+                        <div class="group">
+                            <div class="flex justify-between text-xs mb-1.5">
+                                <span class="text-gray-600 font-medium">Fatigue / Hygiene (wF)</span>
+                                <span class="mono text-blue-600" id="val-fatigue">0.4</span>
+                            </div>
+                            <input type="range" id="param-fatigue" min="0" max="3" step="0.1" value="0.4"
+                                class="w-full">
+                            <p class="text-[10px] text-gray-400 mt-1">Decay rate of content.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100">
+
+                <div class="space-y-4">
+                    <h3 class="font-semibold text-gray-800 text-xs uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="clock" class="w-3 h-3"></i> Temporal Stress
+                    </h3>
+                    <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-100">
+                        <button onclick="app.togglePlay()" id="play-btn"
+                            class="p-2 hover:bg-white hover:shadow-sm rounded transition text-gray-700">
+                            <i data-lucide="pause" class="w-4 h-4"></i>
+                        </button>
+                        <div class="h-4 w-px bg-gray-300 mx-1"></div>
+                        <span class="text-xs text-gray-500 font-medium whitespace-nowrap">Sim Speed:</span>
+                        <input type="range" id="param-speed" min="0.1" max="5" step="0.1" value="1" class="w-full">
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-64 border-t border-gray-200 bg-slate-50 p-5 flex flex-col shrink-0">
+                <h3 class="font-semibold text-gray-800 text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i data-lucide="activity" class="w-3 h-3"></i> System Health
+                </h3>
+                <div class="space-y-4 flex-1">
+                    <div class="flex items-end gap-2 h-10">
+                        <div class="w-24 text-xs font-medium text-gray-500 mb-1">Virality</div>
+                        <div class="flex-1 h-full bg-white border border-gray-200 rounded overflow-hidden relative">
+                            <canvas id="chart-virality" class="w-full h-full"></canvas>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-2 h-10">
+                        <div class="w-24 text-xs font-medium text-gray-500 mb-1">Polarization</div>
+                        <div class="flex-1 h-full bg-white border border-gray-200 rounded overflow-hidden relative">
+                            <canvas id="chart-polarization" class="w-full h-full"></canvas>
+                        </div>
+                    </div>
+                    <div class="mt-2 bg-white border border-gray-200 rounded p-2 h-16 overflow-hidden">
+                        <div id="live-readout" class="mono text-[10px] text-gray-600 leading-tight">
+                            System initialized.<br>
+                            Waiting for event...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. FULL ONTOLOGY DATA STRUCTURE ---
+        // Includes 'simConfig' to map concepts to simulation states
+        const ontologyContent = [
+            {
+                id: "root",
+                title: "Core Term",
+                simConfig: { title: "Standard Distribution", preset: "default", speed: 1.0 },
+                content: `<span class="interactive-term" data-term="human-as-media">Human-as-Media</span> is a condition where an individual <span class="interactive-term" data-term="functions-as">[functions-as]</span> a medium by producing and circulating content through the Internet, such that publishing [becomes] a form of social-existence.`,
+                children: [
+                    {
+                        id: "networked-medium",
+                        title: "The Networked Medium",
+                        simConfig: { title: "Network Links", wE: 1.2, wN: 0.8, wF: 0.4 },
+                        content: `The infrastructure of existence. <span class="interactive-term" data-term="internet">Internet</span> → <span class="interactive-term" data-term="web-presence">Web-Presence</span> → <span class="interactive-term" data-term="visibility">Visibility</span>. Without links, there is no human. Includes <span class="interactive-term" data-term="internet-hygiene">Internet-Hygiene</span> and <span class="interactive-term" data-term="attention-discipline">Attention-Discipline</span>.`,
+                        children: [
+                            {
+                                id: "viral-editor",
+                                title: "The Viral Editor",
+                                simConfig: { title: "Viral Algorithms", preset: "viral_storm", wN: 2.0 },
+                                content: `A distributed sorting machine. It performs <span class="interactive-term" data-term="selecting">[selecting]</span>, <span class="interactive-term" data-term="ranking">[ranking]</span>, and <span class="interactive-term" data-term="amplifying">[amplifying]</span> based on <span class="interactive-term" data-term="engagement-metrics">Engagement-Metrics</span>. It creates <span class="interactive-term" data-term="social-gravitation">Social-Gravitation</span>.`,
+                            },
+                            {
+                                id: "filter-bubble",
+                                title: "Filter Bubble",
+                                simConfig: { title: "Filter Bubbles", preset: "echo_chamber", highlight: "boundaries" },
+                                content: `A <span class="interactive-term" data-term="filter-bubble">Personalized-Environment</span> that narrows exposure based on history, reinforcing tribal boundaries.`
+                            }
+                        ]
+                    },
+                    {
+                        id: "activity-shift",
+                        title: "Media Activity Shift",
+                        simConfig: { title: "Engagement Patterns", wE: 1.5, wN: 1.0 },
+                        content: `The move from <span class="interactive-term" data-term="broadcasting">Broadcasting</span> (one-to-many) to <span class="interactive-term" data-term="engagement">Engagement</span> (many-to-many), characterized by <span class="interactive-term" data-term="participant-content">Participant-Content</span> where the audience co-produces the message.`
+                    },
+                    {
+                        id: "sharing-economy",
+                        title: "Sharing Economy of Meaning",
+                        simConfig: { title: "Sharing Velocity", speed: 2.0, wF: 0.8 },
+                        content: `<span class="interactive-term" data-term="sharing">Sharing</span> is driven by psychological needs for recognition. <span class="interactive-term" data-term="abundance">Abundance</span> leads to <span class="interactive-term" data-term="conspicuous-consumption">Conspicuous-Consumption</span> of information to signal status.`
+                    },
+                    {
+                        id: "stress-loop",
+                        title: "Temporal Stress Loop",
+                        simConfig: { title: "Temporal Stress", speed: 3.5, wF: 2.5 },
+                        content: `<span class="interactive-term" data-term="present-shock">Present-Shock</span>: Everything happens "now". <span class="interactive-term" data-term="compression">Compression-of-History</span> forces rapid adaptation, leading to <span class="interactive-term" data-term="reactionism">Reactionism</span>, <span class="interactive-term" data-term="xenophobia">Xenophobia</span>, and <span class="interactive-term" data-term="extremism">Extremism</span>.`,
+                    },
+                    {
+                        id: "emancipation",
+                        title: "Emancipation of Authorship",
+                        simConfig: { title: "Authorship Explosion", wE: 0.8, wN: 2.5, wF: 0.2 },
+                        content: `The <span class="interactive-term" data-term="loss-of-monopoly">Loss-of-Monopoly</span> over meaning. <span class="interactive-term" data-term="authorship-explosion">Authorship-Explosion</span> leads to <span class="interactive-term" data-term="publishing-obligation">Publishing-as-Obligation</span> ("I publish therefore I am") and the rule: <span class="interactive-term" data-term="no-links">No-Links-No-Human</span>.`
+                    }
+                ]
+            }
+        ];
+
+        // --- 2. RENDERER ---
+
+        let currentSlideIndex = 0;
+        let flatOntology = [];
+        let viewMode = 'list';
+
+        // Helper: Flatten Tree for Slide Deck
+        function flattenOntology(items, parentTitle = null) {
+            let flat = [];
+            items.forEach(item => {
+                const itemWithContext = { ...item, parentContext: parentTitle };
+                flat.push(itemWithContext);
+                if (item.children) {
+                    flat = flat.concat(flattenOntology(item.children, item.title));
+                }
+            });
+            return flat;
+        }
+
+        // Helper: Find slide index by term ID or fuzzy title match
+        function findSlideIndexByTerm(term) {
+            // 1. Try exact ID match
+            let idx = flatOntology.findIndex(item => item.id === term);
+            if (idx !== -1) return idx;
+
+            // 2. Try partial title match
+            const termSlug = term.toLowerCase().replace(/-/g, ' ');
+            idx = flatOntology.findIndex(item => item.title.toLowerCase().includes(termSlug));
+            return idx;
+        }
+
+        function renderOntologyList(items, container, depth = 0) {
+            items.forEach(item => {
+                const section = document.createElement('div');
+                section.className = `ontology-section mb-6 ${depth > 0 ? 'ml-6 pl-4 border-l-2 border-gray-100' : ''}`;
+
+                const header = document.createElement('div');
+                header.className = 'ontology-header flex items-center gap-2 mb-2 group select-none';
+                header.onclick = (e) => {
+                    const content = section.querySelector('.ontology-content');
+                    section.classList.toggle('collapsed');
+                    if (section.classList.contains('collapsed')) {
+                        content.style.maxHeight = null;
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    }
+                };
+
+                const iconSize = depth === 0 ? 'w-4 h-4' : 'w-3 h-3';
+                const fontSize = depth === 0 ? 'text-lg' : 'text-base';
+                const fontWeight = depth === 0 ? 'font-bold' : 'font-semibold';
+                const textColor = depth === 0 ? 'text-gray-900' : 'text-gray-700';
+
+                header.innerHTML = `
+                    <div class="p-1 rounded-sm hover:bg-gray-100 transition-colors">
+                        <i data-lucide="chevron-down" class="chevron text-gray-400 ${iconSize}"></i>
+                    </div>
+                    <h3 class="${fontWeight} ${textColor} ${fontSize}">${item.title}</h3>
+                `;
+
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = 'ontology-content';
+
+                const innerText = document.createElement('p');
+                innerText.className = 'text-gray-600 leading-relaxed mb-4 text-sm';
+                innerText.innerHTML = item.content;
+
+                contentWrapper.appendChild(innerText);
+
+                if (item.children) {
+                    renderOntologyList(item.children, contentWrapper, depth + 1);
+                }
+
+                section.appendChild(header);
+                section.appendChild(contentWrapper);
+                container.appendChild(section);
+
+                requestAnimationFrame(() => {
+                    contentWrapper.style.maxHeight = "none";
+                });
+            });
+        }
+
+        function renderSlide(index) {
+            const container = document.getElementById('ontology-container');
+            container.innerHTML = '';
+
+            const item = flatOntology[index];
+            if (!item) return;
+
+            // Apply Simulation State for this Slide
+            app.applySlideContext(item);
+
+            const slide = document.createElement('div');
+            slide.className = 'flex flex-col h-full p-6 bg-white slide-animate relative';
+
+            let breadcrumbs = '';
+            if (item.parentContext) {
+                breadcrumbs = `<div class="flex items-center gap-1 text-xs text-gray-400 font-medium tracking-wide uppercase mb-4 cursor-pointer hover:text-blue-500" onclick="app.jumpToRoot()">
+                    <span>${item.parentContext}</span>
+                    <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                </div>`;
+            } else {
+                breadcrumbs = `<div class="flex items-center gap-1 text-xs text-blue-500 font-bold tracking-wide uppercase mb-4">
+                    <span>Root Concept</span>
+                </div>`;
+            }
+
+            slide.innerHTML = `
+                <button onclick="app.jumpToRoot()" class="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition" title="Go to Root">
+                    <i data-lucide="map" class="w-5 h-5"></i>
+                </button>
+
+                <div class="flex-1 flex flex-col justify-center max-w-2xl mx-auto w-full">
+                    ${breadcrumbs}
+                    <h2 class="text-3xl font-bold text-gray-900 mb-8 leading-tight">${item.title}</h2>
+                    <div class="text-lg text-gray-700 leading-8 font-light">
+                        ${item.content}
+                    </div>
+                    
+                    <div class="mt-8 p-3 bg-blue-50 border border-blue-100 rounded text-sm text-blue-700 flex items-start gap-3">
+                         <i data-lucide="zap" class="w-4 h-4 mt-1 shrink-0"></i>
+                         <div>
+                            <span class="font-bold">Simulation Active:</span>
+                            <span>${item.simConfig.title || "Standard Model"}. Click terms above to explore related concepts.</span>
+                         </div>
+                    </div>
+                </div>
+                
+                <div class="mt-auto pt-8 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs font-mono text-gray-400">SLIDE ${index + 1} / ${flatOntology.length}</span>
+                    <div class="flex gap-2">
+                        <button onclick="app.prevSlide()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${index === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'}" ${index === 0 ? 'disabled' : ''}>
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> Prev
+                        </button>
+                        <button onclick="app.nextSlide()" class="flex items-center gap-2 px-6 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white shadow-sm hover:bg-blue-700 transition-all ${index === flatOntology.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}" ${index === flatOntology.length - 1 ? 'disabled' : ''}>
+                            Next <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(slide);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            // Attach Click Handlers to Terms
+            const terms = slide.querySelectorAll('.interactive-term');
+            terms.forEach(term => {
+                term.onclick = (e) => {
+                    const termKey = e.target.dataset.term;
+                    const targetIdx = findSlideIndexByTerm(termKey);
+
+                    if (targetIdx !== -1 && targetIdx !== index) {
+                        // It's a navigable slide
+                        currentSlideIndex = targetIdx;
+                        renderSlide(currentSlideIndex);
+                    } else {
+                        // It's a local term, just highlight in sim
+                        state.hoverTerm = termKey;
+                        // Flash visual feedback
+                        e.target.classList.add('term-active');
+                        setTimeout(() => e.target.classList.remove('term-active'), 500);
+                    }
+                };
+            });
+
+            app.attachHover();
+        }
+
+        // --- 3. SIMULATION ENGINE ---
+        const COHORTS = [
+            { id: 0, name: 'Tech', color: '#3b82f6', x: 0.3, y: 0.3 },   // Top Left
+            { id: 1, name: 'Pol', color: '#ef4444', x: 0.7, y: 0.3 },    // Top Right
+            { id: 2, name: 'Art', color: '#10b981', x: 0.5, y: 0.7 }     // Bottom Center
+        ];
+
+        const state = {
+            scale: 0.5,
+            speed: 1.0,
+            params: { wE: 1.0, wN: 0.8, wF: 0.4 },
+            hoverTerm: null,
+            activeContext: null, // New: Active slide context
+            nodes: [],
+            posts: [],
+            metrics: { virality: [], polarization: [] },
+            canvas: { width: 0, height: 0 },
+            isPlaying: true
+        };
+
+        class Simulation {
+            constructor() {
+                this.initNodes();
+                this.initPosts();
+            }
+
+            initNodes() {
+                state.nodes = Array.from({ length: 60 }, (_, i) => {
+                    const cohort = COHORTS[i % 3];
+                    const spread = 0.15;
+                    const nx = cohort.x + (Math.random() - 0.5) * spread;
+                    const ny = cohort.y + (Math.random() - 0.5) * spread;
+                    return {
+                        id: i,
+                        x: nx, y: ny, cohort: i % 3,
+                        fatigue: 0,
+                        radius: 2 + Math.random() * 2
+                    };
+                });
+            }
+
+            initPosts() {
+                state.posts = Array.from({ length: 12 }, (_, i) => this.createPost(i));
+            }
+
+            createPost(i) {
+                const cohort = COHORTS[i % 3];
+                return {
+                    id: `post-${Math.random().toString(36).substr(2, 9)}`,
+                    x: cohort.x,
+                    y: cohort.y,
+                    cohort: i % 3,
+                    engagement: 1 + Math.random() * 5,
+                    novelty: 0.5 + Math.random(),
+                    age: 0,
+                    velocity: 0,
+                    history: []
+                };
+            }
+
+            step() {
+                if (!state.isPlaying) return;
+                const dt = 0.016 * state.speed;
+
+                state.posts.forEach(p => {
+                    p.age += dt * state.params.wF;
+                    const score = (state.params.wE * Math.log1p(p.engagement)) +
+                        (state.params.wN * p.novelty) - p.age;
+                    p.velocity = score;
+
+                    let targetX = p.x, targetY = p.y;
+                    let attractForce = 0;
+                    const targetCohort = (score > 3.0) ? -1 : p.cohort;
+
+                    if (targetCohort === -1) {
+                        targetX = 0.5; targetY = 0.5; attractForce = 0.5;
+                    } else {
+                        const c = COHORTS[p.cohort];
+                        targetX = c.x; targetY = c.y; attractForce = 0.2;
+                    }
+
+                    const dx = targetX - p.x;
+                    const dy = targetY - p.y;
+                    p.x += dx * attractForce * dt;
+                    p.y += dy * attractForce * dt;
+
+                    // Reduced Jitter: Very low brownian noise
+                    p.x += (Math.random() - 0.5) * 0.002;
+                    p.y += (Math.random() - 0.5) * 0.002;
+
+                    state.nodes.forEach(n => {
+                        const dist = Math.hypot(n.x - p.x, n.y - p.y);
+                        if (dist < 0.05) {
+                            let prob = (n.cohort === p.cohort) ? 0.1 : 0.01;
+                            if (score > 2.5) prob = 0.05;
+                            if (Math.random() < prob) {
+                                p.engagement += 1;
+                                n.fatigue += 0.05;
+                                n.flash = 1.0;
+                            }
+                        }
+                    });
+
+                    state.nodes.forEach(n => {
+                        if (n.flash > 0) n.flash -= dt * 2;
+                    });
+
+                    if (score < -1.0) {
+                        Object.assign(p, this.createPost(Math.floor(Math.random() * 3)));
+                    }
+                });
+
+                this.recordMetrics();
+            }
+
+            recordMetrics() {
+                const totalEng = state.posts.reduce((sum, p) => sum + p.engagement, 0);
+                const avgEng = totalEng / state.posts.length;
+                const totalDist = state.posts.reduce((sum, p) => sum + Math.hypot(p.x - 0.5, p.y - 0.5), 0);
+                const avgDist = totalDist / state.posts.length;
+
+                state.metrics.virality.push(avgEng);
+                state.metrics.polarization.push(avgDist * 4);
+
+                if (state.metrics.virality.length > 100) state.metrics.virality.shift();
+                if (state.metrics.polarization.length > 100) state.metrics.polarization.shift();
+
+                if (Math.random() < 0.05) {
+                    const activePost = state.posts.reduce((a, b) => a.velocity > b.velocity ? a : b);
+                    const msg = `Top Post: Cohort ${COHORTS[activePost.cohort].name}\nVel: ${activePost.velocity.toFixed(2)} | Eng: ${activePost.engagement.toFixed(0)}`;
+                    document.getElementById('live-readout').innerText = msg;
+                }
+            }
+        }
+
+        // --- 4. VISUALIZATION ---
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+        const chartVirality = document.getElementById('chart-virality').getContext('2d');
+        const chartPolarization = document.getElementById('chart-polarization').getContext('2d');
+
+        function resize() {
+            const wrapper = document.getElementById('canvas-wrapper');
+            if (!wrapper) return;
+
+            canvas.width = wrapper.clientWidth;
+            canvas.height = wrapper.clientHeight;
+            state.canvas.width = canvas.width;
+            state.canvas.height = canvas.height;
+
+            [document.getElementById('chart-virality'), document.getElementById('chart-polarization')].forEach(c => {
+                c.width = c.clientWidth;
+                c.height = c.clientHeight;
+            });
+        }
+
+        function drawSparkline(ctx, data, color) {
+            const w = ctx.canvas.width;
+            const h = ctx.canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            if (data.length < 2) return;
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            const max = Math.max(...data, 10);
+            const step = w / (data.length - 1);
+            data.forEach((val, i) => {
+                const x = i * step;
+                const y = h - (val / max) * h;
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const { width: w, height: h } = state.canvas;
+
+            // -- Background / Cohorts --
+            if (state.scale > 0.8) {
+                COHORTS.forEach(c => {
+                    ctx.beginPath();
+                    ctx.fillStyle = c.color + '08';
+                    ctx.arc(c.x * w, c.y * h, w * 0.25, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Highlight based on context (slide or hover)
+                    const activeContext = state.activeContext && state.activeContext.highlight === 'boundaries';
+                    const activeHover = state.hoverTerm === 'filter-bubble' || state.hoverTerm === 'social-gravitation';
+
+                    if (activeContext || activeHover) {
+                        ctx.strokeStyle = c.color + '44'; ctx.lineWidth = 2; ctx.stroke();
+                        ctx.setLineDash([5, 5]); ctx.beginPath();
+                        ctx.arc(c.x * w, c.y * h, w * 0.25, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+                    }
+                });
+            }
+
+            // -- Nodes --
+            state.nodes.forEach(n => {
+                const cx = n.x * w; const cy = n.y * h;
+                ctx.beginPath();
+                ctx.arc(cx, cy, n.radius, 0, Math.PI * 2);
+                let color = COHORTS[n.cohort].color;
+                if (n.flash > 0) {
+                    ctx.fillStyle = '#ffffff'; ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+                } else {
+                    ctx.fillStyle = color + '44';
+                }
+                ctx.fill();
+            });
+
+            // -- Posts --
+            state.posts.forEach(p => {
+                const cx = p.x * w; const cy = p.y * h;
+                const r = 4 + Math.sqrt(p.engagement) * 2;
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                if (p.velocity > 2) ctx.fillStyle = '#9333ea'; else ctx.fillStyle = '#4b5563';
+
+                // Highlight based on context (slide or hover)
+                const activeContext = state.activeContext && state.activeContext.title.includes('Viral');
+                const activeHover = state.hoverTerm === 'viral-editor' || state.hoverTerm === 'amplifying';
+
+                if (activeContext || activeHover) {
+                    if (p.velocity > 1) { ctx.shadowBlur = 10; ctx.shadowColor = ctx.fillStyle; }
+                }
+
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Connections
+                if (p.velocity > 3) {
+                    ctx.strokeStyle = 'rgba(147, 51, 234, 0.2)';
+                    ctx.beginPath();
+                    state.nodes.forEach(n => {
+                        if (Math.hypot(n.x - p.x, n.y - p.y) < 0.15) {
+                            ctx.moveTo(cx, cy); ctx.lineTo(n.x * w, n.y * h);
+                        }
+                    });
+                    ctx.stroke();
+                }
+            });
+
+            drawSparkline(chartVirality, state.metrics.virality, '#3b82f6');
+            drawSparkline(chartPolarization, state.metrics.polarization, '#ef4444');
+            requestAnimationFrame(draw);
+        }
+
+        // --- 5. APP LOGIC (UI & Events) ---
+        const app = {
+            init: () => {
+                flatOntology = flattenOntology(ontologyContent);
+                app.setOntologyView('list');
+
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                else console.warn("Lucide icons pending.");
+
+                resize();
+                window.addEventListener('resize', resize);
+                app.initResizers();
+
+                const sim = new Simulation();
+                setInterval(() => sim.step(), 16);
+                draw();
+
+                // Sliders
+                const bindSlider = (id, param, displayId) => {
+                    document.getElementById(id).addEventListener('input', (e) => {
+                        state.params[param] = parseFloat(e.target.value);
+                        if (displayId) document.getElementById(displayId).textContent = state.params[param].toFixed(1);
+                    });
+                };
+                bindSlider('param-engagement', 'wE', 'val-engagement');
+                bindSlider('param-novelty', 'wN', 'val-novelty');
+                bindSlider('param-fatigue', 'wF', 'val-fatigue');
+                document.getElementById('param-speed').addEventListener('input', (e) => state.speed = parseFloat(e.target.value));
+                document.getElementById('scale-slider').addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    state.scale = val;
+                    const pct = (val / 2) * 100;
+                    document.getElementById('slider-thumb').style.left = `${pct}%`;
+                    const lbl = document.getElementById('scale-label');
+                    if (val < 0.6) { lbl.textContent = "Individual"; lbl.className = "bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-bold uppercase"; }
+                    else if (val < 1.4) { lbl.textContent = "Cohort"; lbl.className = "bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold uppercase"; }
+                    else { lbl.textContent = "Network"; lbl.className = "bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-bold uppercase"; }
+                });
+            },
+
+            attachHover: () => {
+                document.querySelectorAll('.interactive-term').forEach(el => {
+                    el.addEventListener('mouseenter', (e) => {
+                        state.hoverTerm = e.target.dataset.term;
+                        e.target.classList.add('term-active');
+                    });
+                    el.addEventListener('mouseleave', (e) => {
+                        state.hoverTerm = null;
+                        e.target.classList.remove('term-active');
+                    });
+                });
+            },
+
+            setOntologyView: (mode) => {
+                viewMode = mode;
+                const container = document.getElementById('ontology-container');
+                container.innerHTML = ''; // Clear
+
+                const btnList = document.getElementById('btn-view-list');
+                const btnSlide = document.getElementById('btn-view-slide');
+                const contextOverlay = document.getElementById('sim-context-overlay');
+
+                if (mode === 'list') {
+                    btnList.className = "flex items-center gap-2 px-3 py-1 rounded text-xs font-medium bg-white shadow-sm text-gray-800 transition-all";
+                    btnSlide.className = "flex items-center gap-2 px-3 py-1 rounded text-xs font-medium text-gray-500 hover:text-gray-900 transition-all";
+
+                    const listContainer = document.createElement('div');
+                    listContainer.className = 'p-6';
+                    container.appendChild(listContainer);
+                    renderOntologyList(ontologyContent, listContainer);
+
+                    // Reset Sim to default in list mode
+                    state.activeContext = null;
+                    contextOverlay.innerHTML = '';
+                    app.setPreset('default');
+
+                } else {
+                    btnSlide.className = "flex items-center gap-2 px-3 py-1 rounded text-xs font-medium bg-white shadow-sm text-gray-800 transition-all";
+                    btnList.className = "flex items-center gap-2 px-3 py-1 rounded text-xs font-medium text-gray-500 hover:text-gray-900 transition-all";
+
+                    renderSlide(currentSlideIndex);
+                }
+
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                app.attachHover();
+            },
+
+            // --- Slide Navigation ---
+            nextSlide: () => {
+                if (currentSlideIndex < flatOntology.length - 1) {
+                    currentSlideIndex++;
+                    renderSlide(currentSlideIndex);
+                }
+            },
+
+            prevSlide: () => {
+                if (currentSlideIndex > 0) {
+                    currentSlideIndex--;
+                    renderSlide(currentSlideIndex);
+                }
+            },
+
+            jumpToRoot: () => {
+                currentSlideIndex = 0;
+                renderSlide(currentSlideIndex);
+            },
+
+            // --- Simulation Context Logic ---
+            applySlideContext: (item) => {
+                const config = item.simConfig || {};
+
+                // Set active context for renderer (visuals)
+                state.activeContext = config;
+
+                // Apply Presets
+                if (config.preset) {
+                    app.setPreset(config.preset);
+                }
+
+                // Apply Specific Overrides
+                if (config.wE !== undefined) app.setParam('wE', config.wE);
+                if (config.wN !== undefined) app.setParam('wN', config.wN);
+                if (config.wF !== undefined) app.setParam('wF', config.wF);
+                if (config.speed !== undefined) state.speed = config.speed;
+
+                // Update Context Overlay
+                const overlay = document.getElementById('sim-context-overlay');
+                if (config.title) {
+                    overlay.innerHTML = `
+                        <div class="px-4 py-2 bg-white/90 backdrop-blur rounded-full border border-blue-200 shadow-md flex items-center gap-3 animate-bounce-subtle">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                            <span class="text-xs font-bold text-gray-700 uppercase tracking-wide">Visualizing: ${config.title}</span>
+                        </div>
+                    `;
+                } else {
+                    overlay.innerHTML = '';
+                }
+            },
+
+            // --- Standard Stuff ---
+            initResizers: () => {
+                const resizerLeft = document.getElementById('resizer-left');
+                const panelLeft = document.getElementById('panel-left');
+                const resizerRight = document.getElementById('resizer-right');
+                const panelRight = document.getElementById('panel-right');
+
+                const createDragHandler = (panel, direction) => {
+                    return (e) => {
+                        const startX = e.clientX;
+                        const startWidth = parseInt(document.defaultView.getComputedStyle(panel).width, 10);
+                        const doDrag = (e) => {
+                            let newWidth = direction === 'left' ? startWidth + (e.clientX - startX) : startWidth - (e.clientX - startX);
+                            panel.style.width = newWidth + 'px';
+                            resize();
+                        };
+                        const stopDrag = () => {
+                            document.documentElement.removeEventListener('mousemove', doDrag, false);
+                            document.documentElement.removeEventListener('mouseup', stopDrag, false);
+                            document.body.style.cursor = '';
+                            resize();
+                        };
+                        document.documentElement.addEventListener('mousemove', doDrag, false);
+                        document.documentElement.addEventListener('mouseup', stopDrag, false);
+                        document.body.style.cursor = 'col-resize';
+                    }
+                };
+
+                resizerLeft.addEventListener('mousedown', createDragHandler(panelLeft, 'left'));
+                resizerRight.addEventListener('mousedown', createDragHandler(panelRight, 'right'));
+            },
+
+            togglePanel: (side) => {
+                const panel = document.getElementById(`panel-${side}`);
+                const collapsed = document.getElementById(`panel-${side}-collapsed`);
+                const resizer = document.getElementById(`resizer-${side}`);
+
+                if (panel.classList.contains('panel-hidden')) {
+                    panel.classList.remove('panel-hidden');
+                    collapsed.classList.add('panel-hidden');
+                    resizer.classList.remove('panel-hidden');
+                } else {
+                    panel.classList.add('panel-hidden');
+                    collapsed.classList.remove('panel-hidden');
+                    collapsed.classList.add('panel-collapsed-view');
+                    resizer.classList.add('panel-hidden');
+                }
+                resize();
+            },
+
+            setPreset: (type) => {
+                if (type === 'echo_chamber') { app.setParam('wE', 1.0); app.setParam('wN', 0.2); app.setParam('wF', 2.0); }
+                else if (type === 'viral_storm') { app.setParam('wE', 2.0); app.setParam('wN', 1.5); app.setParam('wF', 0.1); }
+                else { app.setParam('wE', 1.0); app.setParam('wN', 0.8); app.setParam('wF', 0.4); }
+            },
+            setParam: (key, val) => {
+                state.params[key] = val;
+                const map = { wE: 'param-engagement', wN: 'param-novelty', wF: 'param-fatigue' };
+                const displayMap = { wE: 'val-engagement', wN: 'val-novelty', wF: 'val-fatigue' };
+                document.getElementById(map[key]).value = val;
+                document.getElementById(displayMap[key]).textContent = val.toFixed(1);
+            },
+            togglePlay: () => {
+                state.isPlaying = !state.isPlaying;
+                const icon = state.isPlaying ? 'pause' : 'play';
+                document.getElementById('play-btn').innerHTML = `<i data-lucide="${icon}" class="w-4 h-4"></i>`;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        };
+
+        window.onload = app.init;
+    </script>
+</body>
+
+</html>
